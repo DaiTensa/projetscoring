@@ -20,7 +20,7 @@ class DataIngestionConfig:
 class DataIngestion:
     def __init__(self):
         self.ingestion_config=DataIngestionConfig()
-
+    # Fonction pour créer les set : tain, test, raw est les enregistré dans un directory : artifacts
     def initiate_data_ingestion(self):
         logging.info("Entered the data ingestion method or component")
         try:
@@ -52,6 +52,7 @@ class DataIngestion:
 class DataPath:
     train_path: str=os.path.join('C:/Users/Lenovo/Documents/DSPython/data_projet_7/', "application_train.csv")
     test_path: str=os.path.join('C:/Users/Lenovo/Documents/DSPython/data_projet_7/', "application_test.csv")
+    datapath: str=os.path.join('C:/Users/Lenovo/Documents/DSPython/data_projet_7/')
 
 class ImportData:
     def __init__(self):
@@ -63,6 +64,34 @@ class ImportData:
             test_data = pd.read_csv(self.data_path.test_path)
             return(train_data, test_data)
         
+
+        except Exception as e:
+            raise CustomException(e,sys)
+
+class DirectoryDataPath:
+
+    def __init__(self):
+        self.data_directory_path = DataPath()
+    
+    def get_files_names(self):
+        logging.info("Extraction des noms des fichiers")
+        try:
+            files_liste_name = os.listdir(self.data_directory_path.datapath)
+            sub1 = ""
+            sub2 = ".csv"
+            idx1 = 0
+            idx2 = 0
+            liste_name = []
+            for name in files_liste_name: 
+                name = str(name)
+                idx1 = name.index(sub1)
+                idx2 = name.index(sub2)
+                res = ''
+                for idx in range(idx1 + len(sub1), idx2):
+                    res = res + name[idx]
+                name_= str(res)
+                liste_name.append(name_)
+            return(liste_name)
 
         except Exception as e:
             raise CustomException(e,sys)
