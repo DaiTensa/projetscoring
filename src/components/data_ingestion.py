@@ -5,44 +5,119 @@ from sklearn.model_selection import train_test_split
 from src.logger import logging
 from src.exception import CustomException
 from dataclasses import dataclass
-
-
-
-
-@dataclass
-class DataIngestionConfig:
-    train_data_path: str=os.path.join('artifacts', "train.csv")
-    test_data_path: str=os.path.join('artifacts', "test.csv")
-    raw_data_path: str=os.path.join('artifacts', "data.csv")
-
+from src.utilis import DataIngestionConfig
 
 
 class DataIngestion:
-    def __init__(self):
-        self.ingestion_config=DataIngestionConfig()
-    # Fonction pour créer les set : tain, test, raw est les enregistré dans un directory : artifacts
+
+    def __init__(self, path, file_name = "NOM_FICHIER_DATA.csv", method = None):
+        
+        """ DataIngestion Class : importer les données via le chemin path
+        initiate_data_ingestion : split des données en Train et Test Sets
+        enregitrement dans le dossier spécifié dans : src.utilis
+
+        get_files_names : récupérer les noms de fichiers avec l'extension, et extraction des noms sans l'extension. 
+
+        Args:
+            path (str): chemin pour accèder aux données
+            file_name (str, optional): fichier de données. Defaults to "NOM_FICHIER_DATA.csv".
+        """
+        self.ingestion_config= DataIngestionConfig()
+        self.path=path
+        self.file_name= file_name
+        self.method = method
+
+    
+
     def initiate_data_ingestion(self):
+
         logging.info("Entered the data ingestion method or component")
+
         try:
-            # Ne pas oublier de changer le nom du fichier csv : dans le chemin suivant ---> NOM_FICHIER_DATA
-            df= pd.read_csv("C:/Users/Lenovo/Documents/DSPython/data_projet_7/NOM_FICHIER_DATA.csv")
-            os.makedirs(os.path.dirname(self.ingestion_config.train_data_path), exist_ok=True)
+            # Ouvrir le fichier de données
+            df= pd.read_csv(f"{self.path}/{self.file_name}")
+            logging.info("Lecture du fichier de données")
 
+            # Création du dossier artifacts pour sauvegrder les données
+            os.makedirs(os.path.dirname(self.ingestion_config.raw_data_path), exist_ok=True)
+
+            # Sauvegarde du fichier de données
             df.to_csv(self.ingestion_config.raw_data_path, index=False, header=True)
-            logging.info("Train test split initiated")
-            train_set,test_set= train_test_split(df, test_size=0.2, random_state=42)
 
+            
+            train_set,test_set= train_test_split(df, test_size=0.2, random_state=42)
+            logging.info("Train test split initiated")
+
+            # Sauvergarde des deux fichiers Train et Test
             train_set.to_csv(self.ingestion_config.train_data_path, index=False, header=True)
             test_set.to_csv(self.ingestion_config.test_data_path, index=False, header=True)
             logging.info("Ingestion of the data is completed")
+            
+            if self.method == "split":
 
-            return(
-                self.ingestion_config.train_data_path,
-                self.ingestion_config.test_data_path)
+                return(
+                    self.ingestion_config.train_data_path,
+                    self.ingestion_config.test_data_path
+                    )
+            else:
+
+                return(
+                    self.ingestion_config.train_path,
+                    self.ingestion_config.test_path
+                    )
 
         except Exception as e:
-            raise CustomException(e, sys) 
+            raise CustomException(e, sys)
+
+
+    def get_files_names(self):
+
+        logging.info("Extraction des noms des fichiers")
+        try:
+            files_liste_name = os.listdir(self.path)
+            sub1 = ""
+            sub2 = ".csv"
+            idx1 = 0
+            idx2 = 0
+            liste_name = []
+            for name in files_liste_name: 
+                name = str(name)
+                idx1 = name.index(sub1)
+                idx2 = name.index(sub2)
+                res = ''
+                for idx in range(idx1 + len(sub1), idx2):
+                    res = res + name[idx]
+                name_= str(res)
+                liste_name.append(name_)
+            return(liste_name, files_liste_name)
+
+        except Exception as e:
+            raise CustomException(e,sys)
+         
         
+
+"""
+class DirectoryDataPath:
+
+    def __init__(self):
+        self.data_directory_path = DataPath()
+    
+"""    
+
+        
+
+
+
+
+
+
+
+
+
+
+
+
+"""
 @dataclass   
 class DataPath:
     train_path: str=os.path.join('C:/Users/Lenovo/Documents/DSPython/data_projet_7/', "application_train.csv")
@@ -73,36 +148,12 @@ class ImportData:
         except Exception as e:
             raise CustomException(e,sys)
 
-class DirectoryDataPath:
+"""
 
-    def __init__(self):
-        self.data_directory_path = DataPath()
-    
-    def get_files_names(self):
-        logging.info("Extraction des noms des fichiers")
-        try:
-            files_liste_name = os.listdir(self.data_directory_path.datapath)
-            sub1 = ""
-            sub2 = ".csv"
-            idx1 = 0
-            idx2 = 0
-            liste_name = []
-            for name in files_liste_name: 
-                name = str(name)
-                idx1 = name.index(sub1)
-                idx2 = name.index(sub2)
-                res = ''
-                for idx in range(idx1 + len(sub1), idx2):
-                    res = res + name[idx]
-                name_= str(res)
-                liste_name.append(name_)
-            return(liste_name, files_liste_name)
-
-        except Exception as e:
-            raise CustomException(e,sys)
-
-
+"""
 if __name__=="__main__":
     obj= ImportData()
     obj.train_test_set()
+"""
+
         
