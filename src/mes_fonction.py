@@ -46,9 +46,6 @@ class RapportDataFrame:
         return(
             original_columns,
             categorical_columns,
-            numerical_columns
-
-
-        )
+            numerical_columns)
 
 

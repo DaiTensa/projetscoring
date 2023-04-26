@@ -91,7 +91,7 @@ class DirectoryDataPath:
                     res = res + name[idx]
                 name_= str(res)
                 liste_name.append(name_)
-            return(liste_name)
+            return(liste_name, files_liste_name)
 
         except Exception as e:
             raise CustomException(e,sys)
