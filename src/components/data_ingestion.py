@@ -38,21 +38,19 @@ class DataIngestion:
 
             return(
                 self.ingestion_config.train_data_path,
-                self.ingestion_config.test_data_path
-
-
-
-
-            )
+                self.ingestion_config.test_data_path)
 
         except Exception as e:
             raise CustomException(e, sys) 
         
-    
+@dataclass   
 class DataPath:
     train_path: str=os.path.join('C:/Users/Lenovo/Documents/DSPython/data_projet_7/', "application_train.csv")
     test_path: str=os.path.join('C:/Users/Lenovo/Documents/DSPython/data_projet_7/', "application_test.csv")
     datapath: str=os.path.join('C:/Users/Lenovo/Documents/DSPython/data_projet_7/')
+    train_data_path_: str=os.path.join('artifacts', "train.csv")
+    test_data_path_: str=os.path.join('artifacts', "test.csv")
+
 
 class ImportData:
     def __init__(self):
@@ -61,7 +59,14 @@ class ImportData:
         logging.info("Importation du train et du test set")
         try:
             train_data = pd.read_csv(self.data_path.train_path)
+            os.makedirs(os.path.dirname(self.data_path.train_data_path_), exist_ok=True)
+            train_data.to_csv(self.data_path.train_data_path_, index=False, header=True)
+            logging.info("Train set split initiated")
+
             test_data = pd.read_csv(self.data_path.test_path)
+            os.makedirs(os.path.dirname(self.data_path.test_data_path_), exist_ok=True)
+            test_data.to_csv(self.data_path.test_data_path_, index=False, header=True)
+            logging.info("Test set split initiated")
             return(train_data, test_data)
         
 
@@ -98,6 +103,6 @@ class DirectoryDataPath:
 
 
 if __name__=="__main__":
-    obj= DataIngestion()
-    obj.initiate_data_ingestion()
+    obj= ImportData()
+    obj.train_test_set()
         

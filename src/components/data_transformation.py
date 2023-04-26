@@ -20,9 +20,41 @@ class DataTransformation:
     def __init_(self):
         self.data_transformation_config=DataTransformationConfig()
 
-    def get_data_transformer_object(self):
+    def get_data_transformer_object(self, numerical_columns, categorical_columns):
+        """
+        Cette Fonction permet de faire la transformation des données 
+        """
         try:
-            numerical_columns= ['','']
-            categorical_columns=['']
-        except:
-            pass
+           # numerical_columns = ['','']
+           # categorical_columns = ['','']
+
+            num_pipeline = Pipeline(
+                steps=[
+                ("imputer", SimpleImputer(strategy= "median")),
+                ("scaled", StandardScaler())
+                ])
+            
+            cat_pipeline = Pipeline(
+                steps=[
+                ("imputer", SimpleImputer(strategy="most_frequent")),
+                ("one_hot_encoder", OneHotEncoder()),
+                ("sclaer", StandardScaler())
+                ])
+
+            logging.info("Numerical columns standar scaling  completed")
+        
+            logging.info("Categorical columns encoding completed")
+
+            preprocessor=ColumnTransformer(
+                
+                [
+                ("num_pipeline", num_pipeline, numerical_columns),
+                ("cat_pipeline", cat_pipeline, categorical_columns)
+                
+                ])
+            
+            return preprocessor
+
+        
+        except Exception as e:
+            raise CustomException(e, sys)

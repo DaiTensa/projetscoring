@@ -41,11 +41,13 @@ class RapportDataFrame:
 
         original_columns = [col for col in self.df.columns]
         categorical_columns = [col for col in self.df.columns if self.df[col].dtype == 'object']
+        binary_columns = [col for col in self.df.columns if (self.df[col].dtype == 'object' and len(self.df[col].unique()) == 2) ]
         numerical_columns = list(self.df.select_dtypes(exclude='O').columns)
 
         return(
             original_columns,
             categorical_columns,
-            numerical_columns)
+            numerical_columns,
+            binary_columns)
 
 
