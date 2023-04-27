@@ -1,5 +1,7 @@
 import pandas as pd
 import numpy as np
+import seaborn as sns
+import matplotlib.pyplot as plt
 import os
 import sys
 from dataclasses import dataclass
@@ -64,3 +66,66 @@ class RapportDataFrame:
             categorical_columns,
             numerical_columns,
             binary_columns)
+################################################# PLOTS #################################################
+
+def bar_plot(df, feature="", bar_title=""):
+    
+    temp = df[feature].value_counts()
+    data = pd.DataFrame(
+        {'labels': temp.index,
+        'values': temp.values
+        })
+    plt.figure(figsize = (6,6))
+    plt.title(bar_title)
+    sns.set_color_codes("pastel")
+    sns.barplot(x = 'labels', y="values", data=data)
+    locs, labels = plt.xticks()
+    plt.show()
+
+
+
+
+############################# Memory Usage Reduction ####################################################
+def reduce_memory_usage(df):
+    """
+    Cette Fonction permet d'importer un data frame avec une gestion de la mémoire 
+    Copié dans : https://www.kaggle.com/code/rinnqd/reduce-memory-usage/notebook
+
+    Args:
+        df (dataframe): dataframe à importer
+
+    Returns:
+        df: dataframe après optimisation de la mémoire
+    """
+  
+    start_mem = df.memory_usage().sum() / 1024**2
+    print('Memory usage of dataframe is {:.2f} MB'.format(start_mem))
+    
+    for col in df.columns:
+        col_type = df[col].dtype
+        
+        if col_type != object:
+            c_min = df[col].min()
+            c_max = df[col].max()
+            if str(col_type)[:3] == 'int':
+                if c_min > np.iinfo(np.int8).min and c_max < np.iinfo(np.int8).max:
+                    df[col] = df[col].astype(np.int8)
+                elif c_min > np.iinfo(np.int16).min and c_max < np.iinfo(np.int16).max:
+                    df[col] = df[col].astype(np.int16)
+                elif c_min > np.iinfo(np.int32).min and c_max < np.iinfo(np.int32).max:
+                    df[col] = df[col].astype(np.int32)
+                elif c_min > np.iinfo(np.int64).min and c_max < np.iinfo(np.int64).max:
+                    df[col] = df[col].astype(np.int64)  
+            else:
+                if c_min > np.finfo(np.float16).min and c_max < np.finfo(np.float16).max:
+                    df[col] = df[col].astype(np.float16)
+                elif c_min > np.finfo(np.float32).min and c_max < np.finfo(np.float32).max:
+                    df[col] = df[col].astype(np.float32)
+                else:
+                    df[col] = df[col].astype(np.float64)
+
+    end_mem = df.memory_usage().sum() / 1024**2
+    print('Memory usage after optimization is: {:.2f} MB'.format(end_mem))
+    print('Decreased by {:.1f}%'.format(100 * (start_mem - end_mem) / start_mem))
+    
+    return df 
