@@ -10,7 +10,7 @@ from src.utilis import DataIngestionConfig
 
 class DataIngestion:
 
-    def __init__(self, path, file_name = "NOM_FICHIER_DATA.csv", method = None):
+    def __init__(self, path, file_name = "", method = None):
         
         """ DataIngestion Class : importer les données via le chemin path
         initiate_data_ingestion : split des données en Train et Test Sets
@@ -93,6 +93,8 @@ class DataIngestion:
 
         except Exception as e:
             raise CustomException(e,sys)
+    
+    
          
         
 
