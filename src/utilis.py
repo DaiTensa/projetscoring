@@ -2,6 +2,7 @@ import pandas as pd
 import numpy as np
 import seaborn as sns
 import matplotlib.pyplot as plt
+import math
 import os
 import sys
 from dataclasses import dataclass
@@ -80,6 +81,94 @@ def bar_plot(df, feature="", bar_title=""):
     sns.set_color_codes("pastel")
     sns.barplot(x = 'labels', y="values", data=data)
     locs, labels = plt.xticks()
+    plt.show()
+
+
+# Code Copié : https://github.com/samirhinojosa/OC-P4-consumption-needs-of-buildings/blob/master/analysis_notebook.ipynb
+
+# Distribution initiale et transformées des colonnes : columns
+
+def plot_distribution(df, columns, hue_col=None):
+    # Copie du df
+    df_ = df.copy()
+    
+    # Transformation Log, Log2, et Log10
+    for col in columns:
+        df_[col + "_log"] = np.log(df_[col] + 1)
+        df_[col + "_log2"] = np.log2(df_[col] + 1)
+        df_[col + "_log10"] = np.log10(df_[col] + 1)
+
+    for var in columns:
+
+        # We are going to work only with the rows without missing-values for the features
+        df_subset = pd.DataFrame(df_[df_[[col]].notnull().all(axis=1)]).reset_index(drop=True)
+
+        var_cols = [var + "", var + "_log", var + "_log2", var + "_log10"]
+
+        fig = plt.figure(constrained_layout=True, figsize=[15,10])
+        fig.suptitle(var, size=25, fontweight="bold", y=1.05)
+        spec = fig.add_gridspec(ncols=2, nrows=4, width_ratios=[1,1], height_ratios=[0.3,2,0.3,2])
+
+        # to cycle through the columns 
+        col_boxplot, col_histplot = 0, 0
+
+        for i in range(4):
+
+            for j in range(2):
+
+                if i % 2 == 0:
+
+                    if col_boxplot > len(var_cols) - 1:
+                        break
+
+                    ax_box = fig.add_subplot(spec[i, j])
+                    boxplot = sns.boxplot(data=df_subset, x=var_cols[col_boxplot], ax=ax_box)
+
+                    # Remove x axis name for the boxplot
+                    ax_box.set(xlabel="", xticks=[])
+                    ax_box.set(yticks=[])
+
+                    boxplot.set_title(var_cols[col_boxplot], fontdict={ "fontsize": 15, "fontweight": "bold" })
+
+                    col_boxplot += 1
+
+                elif i % 2 != 0:
+
+                    if col_histplot > len(columns) - 1:
+                        break
+
+                    ax_hist = fig.add_subplot(spec[i, j])
+                    sns.histplot(data=df_subset, x=var_cols[col_histplot], bins=100,  kde=True,  ax=ax_hist, hue=hue_col)
+                    ax_hist.set(xlabel=var_cols[col_histplot])
+
+                    col_histplot += 1
+
+    #     plt.savefig("figures/transformation-" + var + ".png", transparent=True, bbox_inches='tight', dpi=200)
+        sns.despine(fig)  
+        plt.show()
+
+
+def bar_plots(df, features=[]):
+    num_plots = len(features)
+    num_cols = 3
+    num_rows = math.ceil(num_plots / num_cols)
+    fig, axes = plt.subplots(nrows=num_rows, ncols=num_cols, figsize=(18, 6*num_rows))
+    fig.suptitle('Barplots of Categorical Features')
+    for i, feature in enumerate(features):
+        row = i // num_cols
+        col = i % num_cols
+        temp = df[feature].value_counts()
+        data = pd.DataFrame({'labels': temp.index, 'values': temp.values})
+        sns.set_color_codes("pastel")
+        bar_plot = sns.barplot(x='labels', y='values', data=data, ax=axes[row][col])
+        bar_plot.set_title(feature)
+        axes[row][col].set_xlabel('')
+        axes[row][col].set_xticklabels([])
+        for j, label in enumerate(data['labels']):
+            bar_plot.text(j, data['values'][j], f"{data['values'][j]:,}", ha='center', va='bottom')
+            handles, labels = bar_plot.get_legend_handles_labels()
+            axes[row][col].legend(handles=handles, labels=labels)
+            fig.legend(handles, labels, loc='lower right')
     plt.show()
 
 
