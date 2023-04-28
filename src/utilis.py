@@ -7,6 +7,7 @@ import os
 import sys
 from dataclasses import dataclass
 
+#######################################Config Data Path ####################################
 
 @dataclass
 class DataIngestionConfig:
@@ -15,6 +16,7 @@ class DataIngestionConfig:
     raw_data_path: str=os.path.join('artifacts', "data.csv")
     train_path: str=os.path.join('C:/Users/Lenovo/Documents/DSPython/data_projet_7/', "application_train.csv")
     test_path: str=os.path.join('C:/Users/Lenovo/Documents/DSPython/data_projet_7/', "application_test.csv")
+
 
 
 ############################ EXPLORATION DATA FRAMES#####################################
@@ -99,92 +101,61 @@ class RapportDataFrame:
             data.append(column_dic)
         
         recap = pd.DataFrame(data, columns=['NomColonne', 'role', 'level', 'dtype', 'response_rate'])
-        recap.set_index('NomColonne', inplace=True)
+        # recap.set_index('NomColonne', inplace=True)
 
         return recap
+
+
             
 ################################################# PLOTS #################################################
 
-def plot_stats(df, feature, label_rotation=False, horizontal_layout=True, traget="TARGET"):
+
+# Fonction pour générer les couleurs pour les cluster
+def generate_colors(num_color, palette='bright'):
     
+    """
+    Selon le nombre de Cluster : num_cluster, on vas générer des couleurs au format hex.
     
-    temp = df[feature].value_counts()
-    df1 = pd.DataFrame({feature: temp.index, feature: temp.values})
-
-    # Calculate the percentage of target=1 per category value
-    cat_perc = df[[feature, traget]].groupby([feature],as_index=False).mean()
-    cat_perc.sort_values(by=traget, ascending=False, inplace=True)
+    deep, muted, bright, pastel, dark, colorblind
+    """
     
-    if(horizontal_layout):
-        fig, (ax1, ax2) = plt.subplots(ncols=2, figsize=(12,6))
-    else:
-        fig, (ax1, ax2) = plt.subplots(nrows=2, figsize=(12,14))
-    sns.set_color_codes("pastel")
+    colors = color = sns.color_palette(palette= palette, n_colors= num_color, desat=None, as_cmap=False).as_hex()
+    return colors
 
 
-    s = sns.barplot(ax=ax1, x = feature, y= feature ,data=df1)
-    if(label_rotation):
-        s.set_xticklabels(s.get_xticklabels(),rotation=90)
-    
-    s = sns.barplot(ax=ax2, x = feature, y= traget, order=cat_perc[feature], data=cat_perc)
-    if(label_rotation):
-        s.set_xticklabels(s.get_xticklabels(),rotation=90)
-    plt.ylabel('Pourcentage avec la TARGET = 1 [%]', fontsize=10)
-    plt.tick_params(axis='both', which='major', labelsize=10)
+def count_plot_for_object(df, temp_col, target = "TARGET", label_rotation=False, palette='bright'):
 
-    plt.show()
-
-
-
-def count_plot_for_object(df, temp_col, target = "TARGET", label_rotation=False):
+    sns.set_style("whitegrid")
 
     df_0 = df.loc[df[target] == 0,:]
     df_1 = df.loc[df[target] == 1,:]
 
+    num_categories_df = len(df[temp_col].unique())
+    num_categories_df_0 = len(df_0[temp_col].unique())
+    num_categories_df_1 = len(df_1[temp_col].unique())
+
+    colors_df = generate_colors(num_categories_df, palette = palette)
+    colors_df_0 = generate_colors(num_categories_df_0, palette = palette)
+    colors_df_1 = generate_colors(num_categories_df_1, palette = palette)
+
     fig, axs = plt.subplots(ncols=3, figsize=(10,5))
-    s = sns.countplot(x= temp_col, data=df, ax=axs[0])
+    s = sns.countplot(x= temp_col, data=df, ax=axs[0], palette=colors_df, saturation=0.75)
     if(label_rotation):
         s.set_xticklabels(s.get_xticklabels(),rotation=90)
     axs[0].set_title("Total")
 
-    s = sns.countplot(x= temp_col, data=df_1, ax=axs[1])
+    s = sns.countplot(x= temp_col, data=df_1, ax=axs[1], palette=colors_df_1, saturation=0.75)
     if(label_rotation):
         s.set_xticklabels(s.get_xticklabels(),rotation=90)
-    axs[1].set_title("Percent : TARGET = 1 ")
+    axs[1].set_title("Count : TARGET = 1 ")
 
-    s = sns.countplot(x=temp_col, data=df_0, ax=axs[2])
+    s = sns.countplot(x=temp_col, data=df_0, ax=axs[2], palette=colors_df_0, saturation=0.75)
     if(label_rotation):
         s.set_xticklabels(s.get_xticklabels(),rotation=90)
-    axs[2].set_title("Percent : TARGET = 0 ")
+    axs[2].set_title("Count : TARGET = 0 ")
 
     fig.tight_layout()
     fig.subplots_adjust(top=0.9)
-    plt.show()
-
-
-def plot_count_percent_for_object(df, temp_col):
-
-    df_0 = df.loc[df['TARGET'] == 0,:]
-    df_0 = df.loc[df['TARGET'] == 1,:]
-
-    fig, axs = plt.subplots(ncols=3, figsize=(10,5))
-
-    # Count plot
-    sns.countplot(x= temp_col, data=df, ax=axs[0])
-    axs[0].set_title("Count")
-
-    # Bar plot
-    sns.barplot(x= temp_col, y='TARGET', data=df, ax=axs[1])
-    axs[1].set_title("Percent : TARGET = 1 ")
-    axs[1].set_ylim([0,1])
-
-    sns.barplot(x=temp_col, y='TARGET', data=df, ax=axs[2])
-    axs[2].set_title("Percent : TARGET = 0 ")
-    axs[2].set_ylim([0,1])
-
-    fig.tight_layout()
-    fig.subplots_adjust(top=0.9)
-
     plt.show()
 
 
@@ -252,127 +223,6 @@ def plot_distribution(df, columns, hue_col=None):
         plt.show()
 
 
-def bar_plots(df, features=[],num_cols=3 ):
-    
-    num_plots = len(features)
-    num_rows = math.ceil(num_plots / num_cols)
-    fig, axes = plt.subplots(nrows=num_rows, ncols=num_cols, figsize=(18, 6*num_rows))
-    fig.suptitle('Barplots of Categorical Features')
-    for i, feature in enumerate(features):
-        row = i // num_cols
-        col = i % num_cols
-        temp = df[feature].value_counts()
-        data = pd.DataFrame({'labels': temp.index, 'values': temp.values})
-        sns.set_color_codes("pastel")
-        bar_plot = sns.barplot(x='labels', y='values', data=data, ax=axes[row][col])
-        bar_plot.set_title(feature)
-        axes[row][col].set_xlabel('')
-        axes[row][col].set_xticklabels([])
-        for j, label in enumerate(data['labels']):
-            bar_plot.text(j, data['values'][j], f"{data['values'][j]:,}", ha='center', va='bottom')
-            handles, labels = bar_plot.get_legend_handles_labels()
-            axes[row][col].legend(handles=handles, labels=labels)
-            fig.legend(handles, labels, loc='lower right')
-    plt.show()
-
-
-
-def plot_category(data, col_name="", num_categories = 4, labels = None, plot_name ="",save_fig=False):
-    
-    """
-    plot_category() : Création de catégories de la colonne col_name. 
-    
-    Paramètres: 
-    ***********
-    data : données à visualiser 
-    col_name : le nom de la colonne. 
-    num_categories : Nombre de catégories. par défaut : 4.
-    labels : Résultat labels des clusters. 
-    plot_name : Nom du graphique pour l'enregistrement. Spécifier le chemin du dossier dans lequel enregistrer le graphique. 
-    save_fig : True : sauvagrder de la figure au format PNG. 
-    
-    
-    return:
-    *******
-    graphique : distribution des catégories en pourcentage (%) pour chaque cluster selon la variable col_name.
-    
-    """
-    # Copie du data original. 
-    data_plot = data.copy()
-    
-    # Création de la colonne cluster. 
-    data_plot['cluster'] = labels
-    
-    # Utilisez la fonction pd.cut() pour créer les catégories basées sur la colonne col_name.
-    data_plot[f'{col_name}_category'] = pd.cut(data_plot[col_name], bins= num_categories, include_lowest=True , precision = 0)
-    
-    # groupby by = 'cluser' et col_name_category et renomage de la colonne par Total
-    df_to_plot = data_plot.groupby(['cluster', f'{col_name}_category']).size().reset_index(name='Total')
-    
-    # Calcul du pourcentage pour chaque catégorie. 
-    df_to_plot['Percentage'] = round(100* df_to_plot['Total'] / df_to_plot.groupby(['cluster'])['Total'].transform('sum'), 2)
-    
-    # Pivot pour traçer le graphique
-    df_to_plot = df_to_plot.pivot_table('Percentage', 'cluster', f'{col_name}_category')
-    
-    # --- Visualisation ---
-    #--Config figure------: 
-    xy_label = dict(fontweight='bold', fontsize=9)
-    colors = generate_colors(num_categories)
-    suptitle = dict(fontweight='heavy', x=0.124, y=0.98, ha='left', fontsize=12)
-    title = dict(style='italic', fontsize=8, loc='left')
-    tick_params = dict(length=3, width=1, color='#CAC9CD')
-    
-    #----Catégories----:
-    categories_ = list(df_to_plot)[:]
-    
-    
-    #----Plot---------:
-    ax = df_to_plot.plot(kind='barh', 
-                         stacked=True, 
-                         figsize=(9, 5), 
-                         edgecolor='black', 
-                         color=colors, 
-                         linewidth=0.5, 
-                         alpha=0.85, 
-                         zorder=3)
-    
-    plt.ylabel('Cluster\n', **xy_label)
-    for rect in ax.patches:
-        width, height = rect.get_width(), rect.get_height()
-        x, y = rect.get_xy()
-        if width > 5:
-            ax.text(x+width/2, y+height/2, '{:.1f}%'.format(width), fontsize=6, horizontalalignment='center', verticalalignment='center')
-    plt.xticks(fontsize=7)
-    plt.yticks(fontsize=7)
-    plt.grid(axis='y', alpha=0, zorder=2)
-    plt.grid(axis='x', which='major', alpha=0.3, color='#9B9A9C', linestyle='dotted', zorder=1)
-    plt.legend(categories_, loc='upper center', bbox_to_anchor=(0.5, -0.1), ncol=4, borderpad=2, frameon=False, fontsize=8, columnspacing=3)
-    plt.suptitle(f'Distribution des Cluster selon : {col_name}') 
-    plt.tick_params(bottom='on', **tick_params)
-    for spine in ax.spines.values():
-        spine.set_color('None')
-    for spine in ['bottom']:
-        ax.spines[spine].set_visible(True)
-        ax.spines[spine].set_color('#CAC9CD')
-        
-        
-    # Save Figure:
-    if save_fig:
-        plt.savefig(f"figures/EDA/plot_{plot_name}.png", transparent=True, bbox_inches='tight', dpi=200)
-    plt.show()
-
-# Fonction pour générer les couleurs pour les cluster
-def generate_colors(num_clusters, palette='colorblind'):
-    
-    """
-    Selon le nombre de Cluster : num_cluster, on vas générer des couleurs au format hex.
-    
-    deep, muted, bright, pastel, dark, colorblind
-    """
-    
-    colors = color = sns.color_palette(palette= palette, n_colors= num_clusters, desat=None, as_cmap=False).as_hex()
-    return colors
 
 
 ############################# Memory Usage Reduction ####################################################
