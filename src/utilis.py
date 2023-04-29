@@ -123,40 +123,163 @@ def generate_colors(num_color, palette='bright'):
     return colors
 
 
-def count_plot_for_object(df, temp_col, target = "TARGET", label_rotation=False, palette='bright'):
-
+def count_plot_for_object(df, temp_col, target = "TARGET", label_rotation=False, palette='bright', nan_as_categ=None):
+    
+    # Seaborn config : 
     sns.set_style("whitegrid")
 
-    df_0 = df.loc[df[target] == 0,:]
-    df_1 = df.loc[df[target] == 1,:]
+    if(nan_as_categ):
+        df_filled_na = df[[temp_col]].fillna('null')
+        df_filled_na['TARGET'] = df['TARGET']
+        
+        df_0_filled = df_filled_na.loc[df_filled_na['TARGET'] == 0,:]
+        df_1_filled = df_filled_na.loc[df_filled_na['TARGET'] == 1,:]
+        
+        num_categories_df = len(df_filled_na[temp_col].unique())
+        num_categories_df_0 = len(df_0_filled[temp_col].unique())
+        num_categories_df_1 = len(df_1_filled[temp_col].unique())
+        
+        colors_df = generate_colors(num_categories_df, palette = palette)
+        colors_df_0 = generate_colors(num_categories_df_0, palette = palette)
+        colors_df_1 = generate_colors(num_categories_df_1, palette = palette)
+        
+        fig, axs = plt.subplots(ncols=3, figsize=(10,5))
+        s = sns.countplot(x= temp_col, data=df_filled_na, ax=axs[0], palette=colors_df, saturation=0.75)
+        if(label_rotation):
+            s.set_xticklabels(s.get_xticklabels(),rotation=90)
+        axs[0].set_title("Total")
+        
+        s = sns.countplot(x= temp_col, data=df_1_filled, ax=axs[1], palette=colors_df_1, saturation=0.75)
+        if(label_rotation):
+            s.set_xticklabels(s.get_xticklabels(),rotation=90)
+        axs[1].set_title("Count : TARGET = 1 ")
+        
+        s = sns.countplot(x=temp_col, data=df_0_filled, ax=axs[2], palette=colors_df_0, saturation=0.75)
+        if(label_rotation):
+            s.set_xticklabels(s.get_xticklabels(),rotation=90)
+        axs[2].set_title("Count : TARGET = 0 ")
+        
+        fig.tight_layout()
+        fig.subplots_adjust(top=0.9)
+        plt.show()
+        
+    # Affichage sans fill valeurs manquantes   
+    else:
+        
+        df_0 = df.loc[df[target] == 0,:]
+        df_1 = df.loc[df[target] == 1,:]
 
-    num_categories_df = len(df[temp_col].unique())
-    num_categories_df_0 = len(df_0[temp_col].unique())
-    num_categories_df_1 = len(df_1[temp_col].unique())
+        num_categories_df = len(df[temp_col].unique())
+        num_categories_df_0 = len(df_0[temp_col].unique())
+        num_categories_df_1 = len(df_1[temp_col].unique())
 
-    colors_df = generate_colors(num_categories_df, palette = palette)
-    colors_df_0 = generate_colors(num_categories_df_0, palette = palette)
-    colors_df_1 = generate_colors(num_categories_df_1, palette = palette)
+        colors_df = generate_colors(num_categories_df, palette = palette)
+        colors_df_0 = generate_colors(num_categories_df_0, palette = palette)
+        colors_df_1 = generate_colors(num_categories_df_1, palette = palette)
 
-    fig, axs = plt.subplots(ncols=3, figsize=(10,5))
-    s = sns.countplot(x= temp_col, data=df, ax=axs[0], palette=colors_df, saturation=0.75)
-    if(label_rotation):
-        s.set_xticklabels(s.get_xticklabels(),rotation=90)
-    axs[0].set_title("Total")
+        fig, axs = plt.subplots(ncols=3, figsize=(10,5))
+        s = sns.countplot(x= temp_col, data=df, ax=axs[0], palette=colors_df, saturation=0.75)
+        if(label_rotation):
+            s.set_xticklabels(s.get_xticklabels(),rotation=90)
+        axs[0].set_title("Total")
 
-    s = sns.countplot(x= temp_col, data=df_1, ax=axs[1], palette=colors_df_1, saturation=0.75)
-    if(label_rotation):
-        s.set_xticklabels(s.get_xticklabels(),rotation=90)
-    axs[1].set_title("Count : TARGET = 1 ")
+        s = sns.countplot(x= temp_col, data=df_1, ax=axs[1], palette=colors_df_1, saturation=0.75)
+        if(label_rotation):
+            s.set_xticklabels(s.get_xticklabels(),rotation=90)
+        axs[1].set_title("Count : TARGET = 1 ")
 
-    s = sns.countplot(x=temp_col, data=df_0, ax=axs[2], palette=colors_df_0, saturation=0.75)
-    if(label_rotation):
-        s.set_xticklabels(s.get_xticklabels(),rotation=90)
-    axs[2].set_title("Count : TARGET = 0 ")
+        s = sns.countplot(x=temp_col, data=df_0, ax=axs[2], palette=colors_df_0, saturation=0.75)
+        if(label_rotation):
+            s.set_xticklabels(s.get_xticklabels(),rotation=90)
+        axs[2].set_title("Count : TARGET = 0 ")
 
-    fig.tight_layout()
-    fig.subplots_adjust(top=0.9)
-    plt.show()
+        fig.tight_layout()
+        fig.subplots_adjust(top=0.9)
+        plt.show()
+
+
+
+def plot_categ_vs_numeric_columns(df, categ_col, numeric_col, nan_as_categ=None, palette="bright"):
+    
+    fig, axs = plt.subplots(ncols=2, figsize=(10,5))
+
+
+    if(nan_as_categ):
+        df_filled_na = df.copy()
+        df_filled_na.loc[:, categ_col] = df_filled_na[categ_col].fillna('null')
+        
+
+        df_0_filled = df_filled_na.loc[df_filled_na['TARGET'] == 0,:]
+        df_1_filled = df_filled_na.loc[df_filled_na['TARGET'] == 1,:]
+
+
+        num_categories_df_0 = len(df_0_filled[categ_col].unique())
+        num_categories_df_1 = len(df_1_filled[categ_col].unique())
+
+        colors_df_0 = generate_colors(num_categories_df_0, palette = palette)
+        colors_df_1 = generate_colors(num_categories_df_1, palette = palette)
+
+        
+
+
+
+        s = sns.boxplot(data=df_0_filled,  x= df_0_filled[numeric_col],  y= df_0_filled[categ_col],
+                ax=axs[0], 
+                palette=colors_df_0, 
+                saturation=0.75, 
+                showfliers=False
+                 ).set_title(f"{numeric_col} : TARGET = 0 ", fontsize=16)
+
+
+        s = sns.boxplot(data=df_1_filled,  x= df_1_filled[numeric_col],  y= df_1_filled[categ_col],
+                ax=axs[1], 
+                palette=colors_df_1, 
+                saturation=0.75, 
+                showfliers=False
+                 ).set_title(f"{numeric_col} : TARGET = 1 ", fontsize=16)
+
+        axs[0].tick_params(axis='y', labelsize=15)
+        axs[1].set(yticks=[])
+        axs[1].set(ylabel=None)
+        plt.tight_layout(pad=0.5)
+        plt.show()
+
+
+    else:
+        
+        df_0 = df.loc[df["TARGET"] == 0,:]
+        df_1 = df.loc[df["TARGET"] == 1,:]
+
+        num_categories_df_0 = len(df_0[categ_col].unique())
+        num_categories_df_1 = len(df_1[categ_col].unique())
+
+        colors_df_0 = generate_colors(num_categories_df_0, palette = palette)
+        colors_df_1 = generate_colors(num_categories_df_1, palette = palette)
+
+
+        s = sns.boxplot(data=df_0,  x= df_0[numeric_col],  y= df_0[categ_col],
+                ax=axs[0], 
+                palette=colors_df_0, 
+                saturation=0.75, 
+                showfliers=False
+                 ).set_title(f"{numeric_col} : TARGET = 0 ", fontsize=16)
+
+        s = sns.boxplot(data=df_1,  x= df_1[numeric_col],  y= df_1[categ_col],
+                ax=axs[1], 
+                palette=colors_df_1, 
+                saturation=0.75, 
+                showfliers=False
+                 ).set_title(f"{numeric_col} : TARGET = 1 ", fontsize=16)
+
+
+        axs[0].tick_params(axis='y', labelsize=15)
+        axs[1].set(yticks=[])
+        axs[1].set(ylabel=None)
+        plt.tight_layout(pad=0.5)
+        plt.show()
+
+
+
 
 
 # Code Copié : https://github.com/samirhinojosa/OC-P4-consumption-needs-of-buildings/blob/master/analysis_notebook.ipynb
@@ -221,7 +344,6 @@ def plot_distribution(df, columns, hue_col=None):
     #     plt.savefig("figures/transformation-" + var + ".png", transparent=True, bbox_inches='tight', dpi=200)
         sns.despine(fig)  
         plt.show()
-
 
 
 
