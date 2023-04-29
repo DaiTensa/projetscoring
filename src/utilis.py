@@ -346,6 +346,30 @@ def plot_distribution(df, columns, hue_col=None):
         plt.show()
 
 
+def bar_plots(df, features=[],num_cols=3 ):
+    
+    num_plots = len(features)
+    num_rows = math.ceil(num_plots / num_cols)
+    
+    fig, axes = plt.subplots(nrows=num_rows, ncols=num_cols, figsize=(18, 6*num_rows))
+    fig.suptitle('Barplots of Categorical Features')
+    for i, feature in enumerate(features):
+        row = i // num_cols
+        col = i % num_cols
+        temp = df[feature].value_counts()
+        data = pd.DataFrame({'labels': temp.index, 'values': temp.values})
+        sns.set_color_codes("pastel")
+        bar_plot = sns.barplot(x='labels', y='values', data=data, ax=axes[col])
+        bar_plot.set_title(feature)
+        axes[col].set_xlabel('')
+        axes[col].set_xticklabels([])
+        for j, label in enumerate(data['labels']):
+            bar_plot.text(j, data['values'][j], f"{data['values'][j]:,}", ha='center', va='bottom')
+            handles, labels = bar_plot.get_legend_handles_labels()
+            axes[col].legend(handles=handles, labels=labels)
+            fig.legend(handles, labels, loc='lower right')
+    plt.show()
+
 
 ############################# Memory Usage Reduction ####################################################
 def reduce_memory_usage(df):
