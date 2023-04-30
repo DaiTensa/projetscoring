@@ -112,6 +112,8 @@ venv.bak/
 scoring.egg-info/
 artifacts/
 .artifacts
+.vscode
+notebook/logs
 
 # Spyder project settings
 .spyderproject

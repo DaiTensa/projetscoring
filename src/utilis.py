@@ -279,6 +279,45 @@ def plot_categ_vs_numeric_columns(df, categ_col, numeric_col, nan_as_categ=None,
         plt.show()
 
 
+def bar_plots_count(df, features=[]):
+    num_plots = len(features)
+    fig, axes = plt.subplots(nrows=num_plots, ncols=1, figsize=(20, 4*num_plots))
+    fig.suptitle('Barplots of Categorical Features')
+    for i, feature in enumerate(features):
+        temp = df[feature].value_counts()
+        data = pd.DataFrame({'labels': temp.index, 'values': temp.values})
+        sns.set_color_codes("pastel")
+        bar_plot = sns.barplot(y='labels', x='values', data=data, ax=axes[i], orient='horizontal')
+        bar_plot.set_title(feature)
+        axes[i].set_xlabel('')
+        
+    plt.show()
+
+def barplot_groupby_categ_features_numeric(df, categ_col, numeric_col, palette="bright"):
+    
+    num_categories = len(df[categ_col].unique())
+    colors = generate_colors(num_categories, palette = palette)
+    sns.barplot(data=df, x=numeric_col, y=categ_col, 
+       hue=None, 
+       order=None,
+       hue_order=None, 
+       estimator='mean', 
+       errorbar=('ci', 95), 
+       n_boot=1000, 
+       units=None, 
+       seed=None, 
+       orient=None, 
+       color=None, 
+       palette=colors, 
+       saturation=0.75, 
+       width=0.75, 
+       errcolor=None, 
+       errwidth=None, 
+       ax=None).set_title(f"{categ_col} - {numeric_col}")
+    plt.xlabel(numeric_col)
+    plt.ylabel(categ_col)
+    plt.show()
+
 
 
 
@@ -346,29 +385,6 @@ def plot_distribution(df, columns, hue_col=None):
         plt.show()
 
 
-def bar_plots(df, features=[],num_cols=3 ):
-    
-    num_plots = len(features)
-    num_rows = math.ceil(num_plots / num_cols)
-    
-    fig, axes = plt.subplots(nrows=num_rows, ncols=num_cols, figsize=(18, 6*num_rows))
-    fig.suptitle('Barplots of Categorical Features')
-    for i, feature in enumerate(features):
-        row = i // num_cols
-        col = i % num_cols
-        temp = df[feature].value_counts()
-        data = pd.DataFrame({'labels': temp.index, 'values': temp.values})
-        sns.set_color_codes("pastel")
-        bar_plot = sns.barplot(x='labels', y='values', data=data, ax=axes[col])
-        bar_plot.set_title(feature)
-        axes[col].set_xlabel('')
-        axes[col].set_xticklabels([])
-        for j, label in enumerate(data['labels']):
-            bar_plot.text(j, data['values'][j], f"{data['values'][j]:,}", ha='center', va='bottom')
-            handles, labels = bar_plot.get_legend_handles_labels()
-            axes[col].legend(handles=handles, labels=labels)
-            fig.legend(handles, labels, loc='lower right')
-    plt.show()
 
 
 ############################# Memory Usage Reduction ####################################################
