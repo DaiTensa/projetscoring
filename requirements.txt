@@ -5,4 +5,5 @@ matplotlib
 scikit-learn
 dash==2.8.1
 streamlit 
+dill
 #-e .

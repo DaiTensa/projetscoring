@@ -6,24 +6,54 @@ import math
 import os
 import sys
 from dataclasses import dataclass
+from src.exception import CustomException
+import dill
 
 #######################################Config Data Path ####################################
 
 @dataclass
 class DataIngestionConfig:
+    # Création des chemin pour la création des train test set split
+    file_path : str=os.path.join('C:/Users/Lenovo/Documents/DSPython/data_projet_7/', "application_train.csv")
+    data_base_path : str=os.path.join('C:/Users/Lenovo/Documents/DSPython/data_projet_7/')
+
     train_data_path: str=os.path.join('artifacts', "train.csv")
     test_data_path: str=os.path.join('artifacts', "test.csv")
     raw_data_path: str=os.path.join('artifacts', "data.csv")
+
+    # Si le train et test existe déjà alors : changer le chemin et le nom du dossier
     train_path: str=os.path.join('C:/Users/Lenovo/Documents/DSPython/data_projet_7/', "application_train.csv")
     test_path: str=os.path.join('C:/Users/Lenovo/Documents/DSPython/data_projet_7/', "application_test.csv")
+        
+#########################################Data Transformation Config #############################################
 
+@dataclass
+class DataTransformationConfig:
+    preprocessor_ob_file_path=os.path.join('artifacts', "preprocessor.pkl")
+    
+
+    
+#########################################Save file pickl model #################################################
+
+def save_object(file_path, obj):
+    try:
+        dir_path = os.path.dirname(file_path)
+        
+        os.makedirs(dir_path, exist_ok = True)
+        
+        with open(file_path, "wb") as file_obj:
+            dill.dump(obj, file_obj)
+    except Exception as e:
+        raise CustomException(e, sys)
 
 
 ############################ EXPLORATION DATA FRAMES#####################################
 
 class RapportDataFrame:
-    def __init__(self, df):
+    def __init__(self, df, target_column, ID_Columns):
         self.df = df
+        self.target_col = target_column
+        self.ID_Columns = ID_Columns
     
     def chek_missing(self):
 
@@ -59,10 +89,11 @@ class RapportDataFrame:
 
     def get_df_columns(self):
 
+        input_feature_df= self.df.drop(columns= [self.target_col, self.ID_Columns], axis= 1)
         original_columns = [col for col in self.df.columns]
         categorical_columns = [col for col in self.df.columns if self.df[col].dtype == 'object']
-        binary_columns = [col for col in self.df.columns if (self.df[col].dtype == 'object' and len(self.df[col].unique()) == 2) ]
-        numerical_columns = list(self.df.select_dtypes(exclude='O').columns)
+        binary_columns = [col for col in input_feature_df.columns if (input_feature_df[col].dtype == 'object' and len(input_feature_df[col].unique()) == 2) ]
+        numerical_columns = list(input_feature_df.select_dtypes(exclude='O').columns)
 
         return(
             original_columns,
