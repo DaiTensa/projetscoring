@@ -8,6 +8,8 @@ import sys
 from dataclasses import dataclass
 from src.exception import CustomException
 import dill
+from sklearn.metrics import accuracy_score, precision_score, recall_score
+#from sklearn.metrics import metrics /!\ /!\ /!\ /!\ /!\
 
 #######################################Config Data Path ####################################
 
@@ -30,6 +32,12 @@ class DataIngestionConfig:
 @dataclass
 class DataTransformationConfig:
     preprocessor_ob_file_path=os.path.join('artifacts', "preprocessor.pkl")
+
+
+######################################### Models trainer config #########################################################
+@dataclass
+class ModelTrainerConfig:
+    trained_model_file_path = os.path.join("artifacts", "model.pkl")
     
 
     
@@ -415,8 +423,29 @@ def plot_distribution(df, columns, hue_col=None):
         sns.despine(fig)  
         plt.show()
 
+        
+###################################################Models Evaluation ############################################
 
-
+def evaluate_models(X_train, y_train, X_test, y_test, models):
+    try:
+        accuracy={}
+        
+        for i in range(len(list(models))):
+            model= list(models.values())[i]
+            model.fit(X_train, y_train) # Train model
+            
+            y_train_pred= model.predict(X_train)
+            y_test_pred= model.predict(X_test)
+            
+            train_model_score = accuracy_score(y_train, y_train_pred)
+            test_model_score = accuracy_score(y_test, y_test_pred)
+            
+            accuracy[list(models.keys())[i]] = test_model_score
+         
+        return accuracy
+    
+    except Exception as e:
+        raise CustomException(e, sys)
 
 ############################# Memory Usage Reduction ####################################################
 def reduce_memory_usage(df):

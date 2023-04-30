@@ -4,7 +4,8 @@ from dataclasses import dataclass
 import numpy as np
 import pandas as pd
 from sklearn.compose import ColumnTransformer
-from sklearn.impute import SimpleImputer
+from sklearn.impute import SimpleImputer, KNNImputer
+from sklearn.experimental import enable_iterative_imputer
 from sklearn.pipeline import Pipeline
 from sklearn.preprocessing import OneHotEncoder, StandardScaler
 
@@ -33,7 +34,9 @@ class DataTransformation:
             
             num_pipeline = Pipeline(
                 steps=[
-                ("imputer", SimpleImputer(strategy= "median")),
+                ("imputer", SimpleImputer(missing_values=np.nan, strategy='mean')),
+#                 ("imputer", IterativeImputer(max_iter=10, random_state=0)),
+#                 ("imputer", KNNImputer(n_neighbors=2, weights="uniform")),
                 ("scaled", StandardScaler())
                 ])
             
