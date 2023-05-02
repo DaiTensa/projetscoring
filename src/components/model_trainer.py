@@ -21,7 +21,7 @@ class ModelTrainer:
     def __init__(self):
         self.model_trainer_config= ModelTrainerConfig()
         
-    def initiate_model_trainer(self, train_array, test_array):
+    def initiate_model_trainer(self, train_array, test_array, models):
         try:
             logging.info("Spliting training and test input data")
             X_train, y_train, X_test, y_test= (
@@ -31,14 +31,6 @@ class ModelTrainer:
                 test_array[:,-1],
             )
             
-            models = {
-                "LogRegression" : LogisticRegression(),
-                "Naive Bayes" : GaussianNB(),
-                "Nearest Neighbors" : KNeighborsClassifier(3),
-#                 "model_4" : model_4(),
-#                 "model_5" : model_5(),
-#                 "model_6" : model_6()
-            }
             
             model_report:dict= evaluate_models(X_train=X_train, y_train=y_train,X_test= X_test ,y_test= y_test, 
                                               models=models)
