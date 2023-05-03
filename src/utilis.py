@@ -75,29 +75,46 @@ class RapportDataFrame:
         df_missing  = pd.concat([total, percent], axis=1, keys=['Total_NAN', 'Percent'])
         return df_missing
     
-    def rapport(self):
+    def rapport(self, nan_threshold, return_column_to_keep=False, print_rapport = False):
 
         missing_data= self.chek_missing()
         liste_features_vides = list((missing_data[missing_data.Percent == 100 ]).index)
         nombre_col_vides = len(liste_features_vides)
-
-        # calcul du taux de valeurs manquantes : 
-        taux_remplissage = (self.df.notnull().sum().sum()/np.product(self.df.shape)) * 100
-
-        print('Le Taux de remplissage total est égal à :', taux_remplissage, "%")   
-        print('Le Nombre de features vides est égal à :', nombre_col_vides, "Features")
-        print('Les Features vides sont :', liste_features_vides)
-        # print('Le Nombre de Valeurs en double est égal à :', valeurDoubl, "valeurs")
-        print()
-        print("*****Nombre de catégorie features catégorielles******\n")
-        # Nombre de catégories par varaible qualitatives
-        for col in self.df.select_dtypes('object'):
-              print(f'{col :-<50} {self.df[col].unique().size}')
+        len_colum_20_percent_nan = len(list(missing_data.loc[missing_data['Percent'] <= nan_threshold].index))
+        
+        if return_column_to_keep:
+            columns_to_keep = list(missing_data.loc[missing_data['Percent'] <= nan_threshold].index)
+            return columns_to_keep
+            
+        if print_rapport:
+            (rows, col) = self.df.shape
+            
+            # calcul du taux de valeurs manquantes : 
+            taux_remplissage = (self.df.notnull().sum().sum()/np.product(self.df.shape)) * 100
+            columns_nan_sup_nan_threshold = list(missing_data.loc[missing_data['Percent'] > nan_threshold].index)
+            
+            print(f"\033[1mNombre de ligne :\033[0m {rows} --- \033[1mNombre de colonnes :\033[0m {col}")
+            print(20 * "--")
+            print('Le Taux de remplissage total est égal à :', round(taux_remplissage,2), "%")  
+            print(f"Nombre de colonnes ayant moins de {nan_threshold}% de valeurs manquantes : {len_colum_20_percent_nan}")
+            print('Le Nombre de features vides est égal à :', nombre_col_vides, "Features")
+            print(20 * "--")
+            print('Les Features vides sont :', liste_features_vides)
+            print(f'Les Features Ayant plus  {nan_threshold}%  de valeurs manquantes sont:')
+            print(columns_nan_sup_nan_threshold)
+            print(20 * "--")
+            print("*****Nombre de catégorie features catégorielles******\n")
+            # Nombre de catégories par varaible qualitatives
+            for col in self.df.select_dtypes('object'):
+                  print(f'{col :-<50} {self.df[col].unique().size}')
+        
+        
 
 
     def get_df_columns(self):
-
-        input_feature_df= self.df.drop(columns= [self.target_col, self.ID_Columns], axis= 1)
+        
+        cols_to_keep = [col for col in self.df.columns if col not in [self.target_col, self.ID_Columns]]
+        input_feature_df = self.df[cols_to_keep].copy()
         original_columns = [col for col in self.df.columns]
         categorical_columns = [col for col in self.df.columns if self.df[col].dtype == 'object']
         binary_columns = [col for col in input_feature_df.columns if (input_feature_df[col].dtype == 'object' and len(input_feature_df[col].unique()) == 2) ]

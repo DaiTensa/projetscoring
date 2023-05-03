@@ -4,7 +4,7 @@ import sys
 from sklearn.model_selection import train_test_split
 from dataclasses import dataclass
 from src.utilis import DataIngestionConfig
-
+from src.utilis import reduce_memory_usage
 from src.logger import logging
 from src.exception import CustomException
 
@@ -28,7 +28,7 @@ class DataIngestion:
 
     
 
-    def initiate_data_ingestion(self):
+    def initiate_data_ingestion(self, target):
 
         logging.info("Entered the data ingestion method or component")
 
@@ -44,11 +44,15 @@ class DataIngestion:
 
                 # Sauvegarde du fichier de données
                 df.to_csv(self.ingestion_config.raw_data_path, index=False, header=True)
-
+                y = df[target]
+                X = df.drop(target, axis= 1)
                 
-                train_set,test_set= train_test_split(df, test_size=0.2, random_state=42)
+                X_train, y_train, X_test, y_test= train_test_split(X, y, test_size=0.2, random_state=42, startify= y)
                 logging.info("Train test split initiated")
-
+                
+                train_set = 
+                test_set = 
+                
                 # Sauvergarde des deux fichiers Train et Test
                 train_set.to_csv(self.ingestion_config.train_data_path, index=False, header=True)
                 test_set.to_csv(self.ingestion_config.test_data_path, index=False, header=True)
@@ -111,6 +115,14 @@ class DataIngestion:
         except Exception as e:
             raise CustomException(e,sys)
     
+
+    def import_file(self, file_name):
+        path_to_data_base = self.ingestion_config.data_base_path
+        print("Importation du fichier...")
+        df = reduce_memory_usage(pd.read_csv(path_to_data_base + file_name))
+        print("Importation du fichier réussie !")
+        return df
+        
 
 # Exemple pour importer le fichier et faire un train test split 
 # if __name__=="__main__":

@@ -16,7 +16,18 @@ from src.logger import logging
 import os
 
 
-
+class DataPreprocessing():
+    def __init__(self):
+        return
+        
+    def one_hot_encoder(slef, df, nan_as_category=True):
+        original_columns = list(df.columns)
+        categorical_columns = [col for col in df.columns if df[col].dtype == 'object']
+        df = pd.get_dummies(df, columns= categorical_columns, dummy_na=nan_as_category)
+        new_columns = [col for col in df.columns if col not in original_columns]
+        return df, new_columns
+    
+    
 class DataTransformation:
     def __init__(self, numerical_columns, categorical_columns, target="" , train_path ="", test_path =""):
         self.data_transformation_config=DataTransformationConfig()
@@ -25,7 +36,8 @@ class DataTransformation:
         self.target_column = target
         self.train_path = train_path
         self.test_path = test_path
-
+        
+ 
     def get_data_transformer_object(self):
         """
         Cette Fonction permet de faire la transformation des données 
@@ -42,8 +54,8 @@ class DataTransformation:
             
             cat_pipeline = Pipeline(
                 steps=[
-                ("imputer", SimpleImputer(strategy="most_frequent")),
-                ("one_hot_encoder", OneHotEncoder()),
+                ("imputer", SimpleImputer(strategy="constant", fill_value='missing')),
+                ("one_hot_encoder", OneHotEncoder(handle_unknown='ignore')),
                 ("sclaer", StandardScaler(with_mean=False))
                 ])
 
@@ -85,8 +97,11 @@ class DataTransformation:
             
             logging.info(f"Applying preprocessing object on training dataframe and testing dataframe.")
             
+            preprocessing_obj.fit(input_feature_train_df)
             input_feature_train_arr = preprocessing_obj.fit_transform(input_feature_train_df)
-            input_feature_test_arr = preprocessing_obj.fit_transform(input_feature_test_df)
+            input_feature_test_arr = preprocessing_obj.transform(input_feature_test_df)
+            
+            
             
             train_arr = np.c_[input_feature_train_arr, np.array(target_feature_train_df)]
             
@@ -105,6 +120,7 @@ class DataTransformation:
                 train_arr,
                 test_arr,
                 self.data_transformation_config.preprocessor_ob_file_path
+              
             
             )
              
