@@ -126,3 +126,38 @@ class DataTransformation:
              
         except Exception as e:
                 raise CustomException(e, sys)
+
+# try:
+#             # Ouvrir le fichier de données
+#             df= pd.read_csv(f"{self.ingestion_config.file_path}")
+#             logging.info("Lecture du fichier de données")
+
+#             # Création du dossier artifacts pour sauvegrder les données
+#             os.makedirs(os.path.dirname(self.ingestion_config.raw_data_path), exist_ok=True)
+
+#             # Sauvegarde du fichier de données
+#             df.to_csv(self.ingestion_config.raw_data_path, index=False, header=True)
+#             y = df[target]
+#             X = df.drop(target, axis= 1)
+            
+#             X_train, y_train, X_test, y_test= train_test_split(X, y, test_size=0.2, random_state=42, startify= y)
+#             logging.info("Train test split initiated")
+            
+#             train_set = 
+#             test_set = 
+            
+#             # Sauvergarde des deux fichiers Train et Test
+#             train_set.to_csv(self.ingestion_config.train_data_path, index=False, header=True)
+#             test_set.to_csv(self.ingestion_config.test_data_path, index=False, header=True)
+#             logging.info("Ingestion of the data is completed")
+
+#             return(
+#                 self.ingestion_config.train_data_path,
+#                 self.ingestion_config.test_data_path
+#                 )
+
+#         except Exception as e:
+#             raise CustomException(e, sys)
+            
+
+                
