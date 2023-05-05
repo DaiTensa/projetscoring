@@ -50,14 +50,22 @@ class DataIngestion:
             raise CustomException(e,sys)
     
 
-    def import_file(self, file_name):
+    def import_file(self, file_name, reduce_memory_usage = False):
         logging.info(f"Importation du dataset raw : {file_name}")
         try:
+            
             path_to_data_base = self.ingestion_config.data_base_path
             print("Importation du dataset...")
-            df = reduce_memory_usage(pd.read_csv(path_to_data_base + file_name))
-            print("Importation du dataset réussie !")
+            if reduce_memory_usage:
+                df = reduce_memory_usage(pd.read_csv(path_to_data_base + file_name))
+                print("Importation du dataset réussie !")
+                
+            else:
+                df = pd.read_csv(path_to_data_base + file_name)
+                print("Importation du dataset réussie !")
+                
             return df
+        
         except Exception as e:
             CustomException(e,sys)
         

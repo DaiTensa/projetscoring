@@ -13,7 +13,7 @@ from sklearn.metrics import accuracy_score, precision_score, recall_score
 from src.logger import logging
 from src.exception import CustomException
 from src.utilis import save_object, evaluate_models
-from src.utilis import ModelTrainerConfig
+from src.components.data_config import ModelTrainerConfig
 
 
 
@@ -21,18 +21,11 @@ class ModelTrainer:
     def __init__(self):
         self.model_trainer_config= ModelTrainerConfig()
         
-    def initiate_model_trainer(self, train_array, test_array, models):
+    def initiate_model_trainer(self, X_tr, y_tr, X_te, y_te, models):
         try:
             logging.info("Spliting training and test input data")
-            X_train, y_train, X_test, y_test= (
-                train_array[:,:-1],
-                train_array[:,-1],
-                test_array[:,:-1],
-                test_array[:,-1],
-            )
-            
-            
-            model_report:dict= evaluate_models(X_train=X_train, y_train=y_train,X_test= X_test ,y_test= y_test, 
+
+            model_report:dict= evaluate_models(X_train=X_tr, y_train=y_tr, X_test= X_te ,y_test= y_te, 
                                               models=models)
             # Pour avoir le meilleur score 
             best_model_score= max(sorted(model_report.values()))
@@ -57,11 +50,11 @@ class ModelTrainer:
             
             )
             
-            predicted= best_model.predict(X_test)
+            predicted= best_model.predict(X_te)
             
-            metric = accuracy_score(y_test, predicted)
+            metric = accuracy_score(y_te, predicted)
             
-            return metric
+            return model_report
       
         except Exception as e:
             raise CustomException(e, sys)

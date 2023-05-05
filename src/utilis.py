@@ -26,12 +26,13 @@ def save_object(file_path, obj):
             dill.dump(obj, file_obj)
     except Exception as e:
         raise CustomException(e, sys)
-
-
-############################ EXPLORATION DATA FRAMES#####################################
-
-
-
+        
+def save_transformed_df(df, path, filename):
+    
+    # Fonction pour Save un df, dans le dossier : path avec le nom : filename, 
+    # avec sélection des colonnes : columns_to_save
+    
+    df.to_csv(path + filename, index=False)
 
             
 ################################################# PLOTS #################################################
