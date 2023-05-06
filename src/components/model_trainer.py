@@ -6,6 +6,7 @@ from dataclasses import dataclass
 from sklearn.linear_model import LogisticRegression
 from sklearn.naive_bayes import GaussianNB
 from sklearn.neighbors import KNeighborsClassifier
+from sklearn.model_selection import GridSearchCV
 
 # Importer les metrics 
 from sklearn.metrics import accuracy_score, precision_score, recall_score
@@ -21,12 +22,13 @@ class ModelTrainer:
     def __init__(self):
         self.model_trainer_config= ModelTrainerConfig()
         
-    def initiate_model_trainer(self, X_tr, y_tr, X_te, y_te, models):
+    def initiate_model_trainer(self, X_tr, y_tr, X_te, y_te, models, param):
         try:
-            logging.info("Spliting training and test input data")
-
+            logging.info("Evaluation modele : Debut")
+            logging.info("Evaluation du modele et fine tuning des hyperparametres")
+            
             model_report:dict= evaluate_models(X_train=X_tr, y_train=y_tr, X_test= X_te ,y_test= y_te, 
-                                              models=models)
+                                              models=models, params=param)
             # Pour avoir le meilleur score 
             best_model_score= max(sorted(model_report.values()))
             
@@ -41,7 +43,7 @@ class ModelTrainer:
             if best_model_score < 0.5:
                 raise CustomException("No best model found", sys)
 
-            logging.info(f"Best found model on both training and testing dataset")
+            logging.info(f"Evaluation modele : Fin")
             
             save_object(
                 file_path= self.model_trainer_config.trained_model_file_path,
@@ -49,6 +51,8 @@ class ModelTrainer:
             
             
             )
+
+            logging.info(f"Save du  best modele format pkl : OK")
             
             predicted= best_model.predict(X_te)
             

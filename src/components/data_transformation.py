@@ -21,16 +21,15 @@ import os
 
 
 
-class DataPreprocessing:
-    def __init__(self):
-        return
-        
-    def one_hot_encoder(slef, df, nan_as_category=True):
-        original_columns = list(df.columns)
-        categorical_columns = [col for col in df.columns if df[col].dtype == 'object']
-        df = pd.get_dummies(df, columns= categorical_columns, dummy_na=nan_as_category)
-        new_columns = [col for col in df.columns if col not in original_columns]
-        return df, new_columns
+# class DataPreprocessing:
+#     def __init__(self):
+
+#     def one_hot_encoder(slef, df, nan_as_category=True):
+#         original_columns = list(df.columns)
+#         categorical_columns = [col for col in df.columns if df[col].dtype == 'object']
+#         df = pd.get_dummies(df, columns= categorical_columns, dummy_na=nan_as_category)
+#         new_columns = [col for col in df.columns if col not in original_columns]
+#         return df, new_columns
     
     
 class DataTransformation:
@@ -55,24 +54,26 @@ class DataTransformation:
 
         try:
 
-            logging.info("Dossier artifacts : Done")
-
             os.makedirs(os.path.dirname(self.data_transformation_config.data_path), exist_ok=True)
+            logging.info("Dossier artifacts : OK")
 
             self.df.copy().to_csv(self.data_transformation_config.data_path, index=False, header=True)
-
-            X = self.df.drop(columns=[target])
+            logging.info("Dossier artifacts : OK")
+            
             y = self.df[target]
+            X = self.df.drop(columns=[target])
+            logging.info("X et y : OK")
+            
 
 
             if stratification:
-                logging.info(f"Initiation du train_test_split avec stratification")
+                logging.info("Initiation du train_test_split avec stratification")
                 X_train, X_test, y_train, y_test= train_test_split(X, y, test_size=train_size, random_state=0, shuffle=True, stratify=y)
-                logging.info("Train et Test split initiated")
+                logging.info("Train et Test split avec stratification : OK")
             else:
                 logging.info(f"Initiation du train_test_split sans stratification")
                 X_train, X_test, y_train, y_test= train_test_split(X, y, test_size=train_size, random_state=0)
-                logging.info("Train et Test split initiated")
+                logging.info("Train et Test split sans stratification : OK")
             
           
             
@@ -86,27 +87,33 @@ class DataTransformation:
             print(f"X_test : done 3/4 ---- Nombre de lignes :{X_test.shape[0]}, Nombre de colonnes:{X_test.shape[1]}")
             y_test.to_csv(self.data_transformation_config.y_test_path, index=False, header=True)
             print(f"y_test : done 4/4 ---- Nombre de lignes :{y_test.shape[0]}")
+            print(20 * "#")
+            print("Les données sont enregistrées dans le dossier artifacts")
+
+            logging.info("X_train X_test y_train y_test : OK")
+            logging.info("Save X_train X_test y_train y_test dans artifacts: OK")
                
        
 
-            logging.info("X_train X_test y_train y_test : Done")
+            
 
             return(
-                self.data_transformation_config.X_train_path,
-                self.data_transformation_config.X_test_path,
-                self.data_transformation_config.y_train_path,
-                self.data_transformation_config.y_test_path
+                X_train,
+                X_test,
+                y_train,
+                y_test
             )
 
         except Exception as e:
             raise CustomException(e, sys)
             
     def get_data_frames(self):
-        
+        logging.info("Importation des donnes de train et de test")
         X_train = pd.read_csv(self.data_transformation_config.X_train_path)
         X_test = pd.read_csv(self.data_transformation_config.X_test_path)
         y_train = pd.read_csv(self.data_transformation_config.y_train_path)
         y_test = pd.read_csv(self.data_transformation_config.y_test_path)
+        logging.info("Importation des donnes de train et de test: OK")
         
         return(
         X_train,
@@ -131,13 +138,15 @@ class DataTransformation:
                 print()
                 print('TARGET distribution après Undersampling')
                 print(y_train_res.value_counts())
-                logging.info("Undersampling :  Done")
+                logging.info("Undersampling :  OK")
                 
 
 
             
             X_train_rapport = RapportDataFrame(X_train_res, target_column="TARGET", ID_Columns=["SK_ID_CURR", "SK_ID_BUREAU"])
-            _, _, numerical_columns_train, _= X_train_rapport.get_df_columns()
+            _, categ, numerical_columns_train, _= X_train_rapport.get_df_columns()
+            logging.info("X_train : Extraction features numeriques :  OK")
+            logging.info("X_train : Extraction features categorielles :  OK")
             
             X_test_rapport = RapportDataFrame(X_test, target_column="TARGET", ID_Columns=["SK_ID_CURR", "SK_ID_BUREAU"])
             _, _, numerical_columns_test, _  = X_test_rapport.get_df_columns()
@@ -152,23 +161,27 @@ class DataTransformation:
 #                 ("imputer", KNNImputer(n_neighbors=2, weights="uniform")),
                 ("scaled", StandardScaler())
             ])
-            
-#             cat_pipeline = Pipeline(
-#                 steps=[
-#                 ("imputer", SimpleImputer(strategy="constant", fill_value='missing')),
-#                 ("one_hot_encoder", OneHotEncoder(handle_unknown='ignore')),
-#                 ("sclaer", StandardScaler(with_mean=False))
-#                 ])
 
-            logging.info("Numerical columns standar scaling  completed")
+            logging.info("Pipeline numerique : OK")
+            
+            cat_pipeline = Pipeline(
+                steps=[
+                ("imputer", SimpleImputer(strategy="constant", fill_value='missing')),
+                ("one_hot_encoder", OneHotEncoder(handle_unknown='ignore')),
+                ("sclaer", StandardScaler(with_mean=False))
+                ])
+
+            logging.info("Pipeline categorielle : OK")
         
 #             logging.info("Categorical columns encoding completed")
 
             preprocessor=ColumnTransformer([
                 ("num_pipeline", num_pipeline, numerical_columns_train),
-#                 ("cat_pipeline", cat_pipeline, self.col_cat)
+                ("cat_pipeline", cat_pipeline, categ)
                 
             ])
+
+            logging.info("Preprocessor object : OK")
     
             print()
             print("Les étapes de transformation :")
@@ -178,15 +191,27 @@ class DataTransformation:
             X_test = X_test.replace((np.inf, -np.inf), np.nan).reset_index(drop=True)
             
             
+
             # Features : 
-            X_train_input_features = X_train_res.columns
-            X_test_input_features = X_test.columns
+            # X_train_input_features = X_train_res.columns
+            # X_test_input_features = X_test.columns
     
             preprocessor.fit(X_train_res)
+            logging.info("Fit Preprocessor object sur les donnes X_train : OK")
+
             X_train_arr = preprocessor.transform(X_train_res)
+            
+
+            X_train_input_features = np.concatenate((preprocessor.named_transformers_["num_pipeline"].get_feature_names_out(numerical_columns_train),
+                                          preprocessor.named_transformers_["cat_pipeline"].named_steps["one_hot_encoder"].get_feature_names(categ)))
+
             X_test_arr = preprocessor.transform(X_test)
+            logging.info("Fit Transform Preprocessor object sur les donnes X_test : OK")
+
+            X_test_input_features = np.concatenate((preprocessor.named_transformers_["num_pipeline"].get_feature_names_out(numerical_columns_train),
+                                                      preprocessor.named_transformers_["cat_pipeline"].named_steps["one_hot_encoder"].get_feature_names(categ)))
             
-            
+
             X_train = pd.DataFrame(X_train_arr, columns=X_train_input_features)
             X_test = pd.DataFrame(X_test_arr, columns=X_test_input_features)
             
@@ -200,9 +225,13 @@ class DataTransformation:
             
             
             )
+
+            logging.info("Save du preprocessor object format pkl : OK")
+
             if return_train_test_array:
                 train_arr = np.c_[np.array(X_train), np.array(y_train_res)]
                 test_arr = np.c_[np.array(X_test), np.array(y_test)]
+                logging.info("Fin du preprocessing : OK")
                 
                 return(
                     train_arr,
@@ -212,12 +241,12 @@ class DataTransformation:
                 )
             
             else:
+                logging.info("Fin du preprocessing : OK")
                 return (        
                     X_train,
                     X_test,
                     y_train_res,
                     y_test
-                    #                 self.data_transformation_config.preprocessor_ob_file_path
                 )
 
         

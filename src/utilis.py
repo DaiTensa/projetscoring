@@ -9,6 +9,7 @@ from dataclasses import dataclass
 from src.exception import CustomException
 import dill
 from sklearn.metrics import accuracy_score, precision_score, recall_score
+from sklearn.model_selection import GridSearchCV
 #from sklearn.metrics import metrics /!\ /!\ /!\ /!\ /!\
 
 
@@ -33,6 +34,15 @@ def save_transformed_df(df, path, filename):
     # avec sélection des colonnes : columns_to_save
     
     df.to_csv(path + filename, index=False)
+
+
+
+def load_object(file_path):
+    try:
+        with open(file_path, "rb") as file_obj:
+            return dill.load(file_obj)
+    except Exception as e:
+        raise CustomException(e, sys)
 
             
 ################################################# PLOTS #################################################
@@ -315,12 +325,21 @@ def plot_distribution(df, columns, hue_col=None):
         
 ###################################################Models Evaluation ############################################
 
-def evaluate_models(X_train, y_train, X_test, y_test, models):
+def evaluate_models(X_train, y_train, X_test, y_test, models, params):
     try:
         accuracy={}
         
         for i in range(len(list(models))):
+            
             model= list(models.values())[i]
+            para= params[list(models.keys())[i]]
+
+            gs= GridSearchCV(estimator= model, param_grid= para, cv=3, verbose=-1)
+            gs.fit(X_train, y_train)
+
+            model.set_params(**gs.best_params_)
+            model.fit(X_train, y_train)
+
             model.fit(X_train, y_train) # Train model
             
             y_train_pred= model.predict(X_train)
@@ -335,6 +354,9 @@ def evaluate_models(X_train, y_train, X_test, y_test, models):
     
     except Exception as e:
         raise CustomException(e, sys)
+
+
+
 
 ############################# Memory Usage Reduction ####################################################
 def reduce_memory_usage(df):

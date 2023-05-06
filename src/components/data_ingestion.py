@@ -59,10 +59,14 @@ class DataIngestion:
             if reduce_memory_usage:
                 df = reduce_memory_usage(pd.read_csv(path_to_data_base + file_name))
                 print("Importation du dataset réussie !")
+                logging.info(f"Importation du dataset raw : {file_name} OK")
                 
             else:
                 df = pd.read_csv(path_to_data_base + file_name)
                 print("Importation du dataset réussie !")
+                logging.info(f"Importation du dataset raw : {file_name} OK")
+
+            
                 
             return df
         
