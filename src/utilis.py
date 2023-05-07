@@ -325,35 +325,31 @@ def plot_distribution(df, columns, hue_col=None):
         
 ###################################################Models Evaluation ############################################
 
-def evaluate_models(X_train, y_train, X_test, y_test, models, params):
+def evaluate_model_(X_train, y_train, X_test, y_test, model, params):
+
     try:
-        accuracy={}
-        
-        for i in range(len(list(models))):
-            
-            model= list(models.values())[i]
-            para= params[list(models.keys())[i]]
+        gs= GridSearchCV(estimator= model, param_grid= params, cv=3, verbose=-1)
+        gs.fit(X_train, y_train)
+        model.set_params(**gs.best_params_)
+        model.fit(X_train, y_train)
+        y_train_pred= model.predict(X_train)
+        y_test_pred= model.predict(X_test)
 
-            gs= GridSearchCV(estimator= model, param_grid= para, cv=3, verbose=-1)
-            gs.fit(X_train, y_train)
-
-            model.set_params(**gs.best_params_)
-            model.fit(X_train, y_train)
-
-            model.fit(X_train, y_train) # Train model
-            
-            y_train_pred= model.predict(X_train)
-            y_test_pred= model.predict(X_test)
-            
-            train_model_score = accuracy_score(y_train, y_train_pred)
-            test_model_score = accuracy_score(y_test, y_test_pred)
-            
-            accuracy[list(models.keys())[i]] = test_model_score
-         
-        return accuracy
+        train_model_accuracy = accuracy_score(y_train, y_train_pred)
+        test_model_accuracy = accuracy_score(y_test, y_test_pred)
+        return test_model_accuracy, train_model_accuracy, model
     
     except Exception as e:
         raise CustomException(e, sys)
+
+#####################################Preprocessing data ################################################
+
+def preprocess_categ_columns(df):
+        original_columns = list(df.columns)
+        categorical_columns = [col for col in df.columns if df[col].dtype == 'object']
+        df = pd.get_dummies(df, columns= categorical_columns, dummy_na=True)
+        new_columns = [col for col in df.columns if col not in original_columns]
+        return df, new_columns
 
 
 
@@ -402,3 +398,36 @@ def reduce_memory_usage(df):
     print('Decreased by {:.1f}%'.format(100 * (start_mem - end_mem) / start_mem))
     
     return df 
+
+################################################# Anciennes versions #######################################################
+"""Ancienne version pour comparer plusieurs modèles
+# def evaluate_models(X_train, y_train, X_test, y_test, models, params):
+#     try:
+#         accuracy={}
+        
+#         for i in range(len(list(models))):
+            
+#             model= list(models.values())[i]
+#             para= params[list(models.keys())[i]]
+
+#             gs= GridSearchCV(estimator= model, param_grid= para, cv=3, verbose=-1)
+#             gs.fit(X_train, y_train)
+
+#             model.set_params(**gs.best_params_)
+#             model.fit(X_train, y_train)
+
+#             model.fit(X_train, y_train) # Train model
+            
+#             y_train_pred= model.predict(X_train)
+#             y_test_pred= model.predict(X_test)
+            
+#             train_model_score = accuracy_score(y_train, y_train_pred)
+#             test_model_score = accuracy_score(y_test, y_test_pred)
+            
+#             accuracy[list(models.keys())[i]] = test_model_score
+         
+#         return accuracy
+    
+#     except Exception as e:
+#         raise CustomException(e, sys)
+"""

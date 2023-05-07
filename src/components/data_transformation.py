@@ -18,37 +18,15 @@ from src.utilis import save_object
 from src.logger import logging
 import os
 
-
-
-
-# class DataPreprocessing:
-#     def __init__(self):
-
-#     def one_hot_encoder(slef, df, nan_as_category=True):
-#         original_columns = list(df.columns)
-#         categorical_columns = [col for col in df.columns if df[col].dtype == 'object']
-#         df = pd.get_dummies(df, columns= categorical_columns, dummy_na=nan_as_category)
-#         new_columns = [col for col in df.columns if col not in original_columns]
-#         return df, new_columns
-    
+  
     
 class DataTransformation:
     def __init__(self, df:Optional[pd.DataFrame] = None):
         
         self.data_transformation_config= DataTransformationConfig()
-        
         self.df = df
 
-
-        # self.data_transformation_config=
-        # self.col_num = numerical_columns
-        # self.col_cat = categorical_columns
-        # self.target_column = target
-        # self.train_path = train_path
-        # self.test_path = test_path
-
-
-    def initiate_train_test_split(self,target, train_size, stratification=False):
+    def initiate_train_test_split(self,target, test_size, stratification=False):
 
         logging.info(f"Debut de initiation du train_test_split")
 
@@ -68,11 +46,11 @@ class DataTransformation:
 
             if stratification:
                 logging.info("Initiation du train_test_split avec stratification")
-                X_train, X_test, y_train, y_test= train_test_split(X, y, test_size=train_size, random_state=0, shuffle=True, stratify=y)
+                X_train, X_test, y_train, y_test= train_test_split(X, y, test_size=test_size, random_state=0, shuffle=True, stratify=y)
                 logging.info("Train et Test split avec stratification : OK")
             else:
                 logging.info(f"Initiation du train_test_split sans stratification")
-                X_train, X_test, y_train, y_test= train_test_split(X, y, test_size=train_size, random_state=0)
+                X_train, X_test, y_train, y_test= train_test_split(X, y, test_size=test_size, random_state=0)
                 logging.info("Train et Test split sans stratification : OK")
             
           
@@ -125,6 +103,7 @@ class DataTransformation:
     
  
     def initiate_data_transformation(self,X_train, X_test, y_train,y_test, undersampling= False, return_train_test_array=False):
+        
         """
         Cette Fonction permet de faire la transformation des données 
         """
@@ -173,7 +152,7 @@ class DataTransformation:
 
             logging.info("Pipeline categorielle : OK")
         
-#             logging.info("Categorical columns encoding completed")
+            logging.info("Categorical columns encoding completed")
 
             preprocessor=ColumnTransformer([
                 ("num_pipeline", num_pipeline, numerical_columns_train),
@@ -190,12 +169,6 @@ class DataTransformation:
             X_train_res = X_train_res.replace((np.inf, -np.inf), np.nan).reset_index(drop=True)
             X_test = X_test.replace((np.inf, -np.inf), np.nan).reset_index(drop=True)
             
-            
-
-            # Features : 
-            # X_train_input_features = X_train_res.columns
-            # X_test_input_features = X_test.columns
-    
             preprocessor.fit(X_train_res)
             logging.info("Fit Preprocessor object sur les donnes X_train : OK")
 
@@ -203,20 +176,17 @@ class DataTransformation:
             
 
             X_train_input_features = np.concatenate((preprocessor.named_transformers_["num_pipeline"].get_feature_names_out(numerical_columns_train),
-                                          preprocessor.named_transformers_["cat_pipeline"].named_steps["one_hot_encoder"].get_feature_names(categ)))
+                                          preprocessor.named_transformers_["cat_pipeline"].named_steps["one_hot_encoder"].fit(X_train_res[categ]).get_feature_names(categ)))
 
             X_test_arr = preprocessor.transform(X_test)
             logging.info("Fit Transform Preprocessor object sur les donnes X_test : OK")
 
             X_test_input_features = np.concatenate((preprocessor.named_transformers_["num_pipeline"].get_feature_names_out(numerical_columns_train),
-                                                      preprocessor.named_transformers_["cat_pipeline"].named_steps["one_hot_encoder"].get_feature_names(categ)))
+                                                      preprocessor.named_transformers_["cat_pipeline"].named_steps["one_hot_encoder"].fit(X_test[categ]).get_feature_names(categ)))
             
 
             X_train = pd.DataFrame(X_train_arr, columns=X_train_input_features)
             X_test = pd.DataFrame(X_test_arr, columns=X_test_input_features)
-            
-            
-          
             
             save_object(
                 
@@ -232,13 +202,7 @@ class DataTransformation:
                 train_arr = np.c_[np.array(X_train), np.array(y_train_res)]
                 test_arr = np.c_[np.array(X_test), np.array(y_test)]
                 logging.info("Fin du preprocessing : OK")
-                
-                return(
-                    train_arr,
-                    test_arr
-                
-                
-                )
+                return(train_arr, test_arr)
             
             else:
                 logging.info("Fin du preprocessing : OK")
@@ -254,7 +218,7 @@ class DataTransformation:
             raise CustomException(e, sys)
             
             
-    
+# Ancienne version de initiate_data_transformation
 #     def  initiate_data_transformation(self):
         
 #         try:

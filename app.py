@@ -31,9 +31,9 @@ def predict_datapoint():
             )
 
         df = data_client.get_data_as_data_frame()
-        pred = data_client.predict(df)
+        pred = data_client.predict_function(df)
         
-        return render_template('home.html', results=pred[0])
+        return render_template('home.html', results=print(df))
 
 if __name__ == "__main__":
     app.run(debug=True)

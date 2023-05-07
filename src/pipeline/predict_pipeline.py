@@ -27,7 +27,7 @@ class CustomData:
             raise CustomException(e, sys)
 
 
-    def predict(self, df):
+    def predict_function(self, df):
         try:
 
             # df_clients_path = self.base_data_path.clients_data_path
