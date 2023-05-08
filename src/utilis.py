@@ -10,6 +10,7 @@ from src.exception import CustomException
 import dill
 from sklearn.metrics import accuracy_score, precision_score, recall_score
 from sklearn.model_selection import GridSearchCV
+from time import time 
 #from sklearn.metrics import metrics /!\ /!\ /!\ /!\ /!\
 
 
@@ -328,15 +329,20 @@ def plot_distribution(df, columns, hue_col=None):
 def evaluate_model_(X_train, y_train, X_test, y_test, model, params):
 
     try:
-        gs= GridSearchCV(estimator= model, param_grid= params, cv=3, verbose=-1)
+        start_time= time()
+        gs= GridSearchCV(estimator= model, param_grid= params, cv=3, n_jobs=-1)
         gs.fit(X_train, y_train)
         model.set_params(**gs.best_params_)
         model.fit(X_train, y_train)
+        end_time = time()
         y_train_pred= model.predict(X_train)
         y_test_pred= model.predict(X_test)
 
+
+
         train_model_accuracy = accuracy_score(y_train, y_train_pred)
         test_model_accuracy = accuracy_score(y_test, y_test_pred)
+        time_taken = end_time - start_time
         return test_model_accuracy, train_model_accuracy, model
     
     except Exception as e:
