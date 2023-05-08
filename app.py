@@ -9,31 +9,29 @@ application= Flask(__name__)
 
 app= application
 
+data_client = CustomData()
+
 ## Route for a home page
 
 
 @app.route('/')
 def index():
-    return render_template('home.html')
-
+    return render_template('index.html')
 
 @app.route('/predictdata', methods=['GET', 'POST'])
 def predict_datapoint():
     if request.method == 'GET':
         return render_template('home.html')
     else:
-        data_client=CustomData(
-            
-            
-            SK_ID_CURR = request.form.get("client_id")
-            
-            
-            )
-
-        df = data_client.get_data_as_data_frame()
+        # print("étape1")
+        SK_ID_CURR = int(request.form.get("client_id"))
+        # print("étape2")
+        df= data_client.get_data_as_data_frame(SK_ID_CURR)
+        # print("étape3")
         pred = data_client.predict_function(df)
-        
-        return render_template('home.html', results= pred[0])
+        return render_template('home.html', results= pred[0], ID =SK_ID_CURR)
 
 if __name__ == "__main__":
     app.run(debug=True)
+
+# client n° : 100065 100092 100117 100150 100171 100232 100253 100280 100331 / 100038  100005 100444 100091

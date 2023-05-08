@@ -30,7 +30,7 @@ class DataTransformationConfig:
     y_train_path:str=os.path.join('artifacts', "y_train.csv")
     X_test_path:str=os.path.join('artifacts', "X_test.csv")
     y_test_path:str=os.path.join('artifacts', "y_test.csv")
-    preprocessor_ob_file_path=os.path.join('artifacts', "preprocessor.pkl")
+    preprocessor_ob_file_path=os.path.join('artifacts', "preprocessor_for_lazy_predict.pkl")
 
 
 ##############################APP DATA PATH CONFIG ####################################################################

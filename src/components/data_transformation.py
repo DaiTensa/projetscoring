@@ -112,7 +112,7 @@ class DataTransformation:
                 logging.info("Initiate Undersampling")
                 print('TARGET distribution avant Undersampling')
                 print(y_train.value_counts())
-                under_sampler_object = RandomUnderSampler(random_state=0)
+                under_sampler_object = RandomUnderSampler(random_state=0) # revoir le partitionnement des target ????? 
                 X_train_res, y_train_res = under_sampler_object.fit_resample(X_train, y_train)
                 print()
                 print('TARGET distribution après Undersampling')

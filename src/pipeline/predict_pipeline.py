@@ -6,20 +6,18 @@ from src.components.data_config import AppConfig
 
 
 class CustomData:
-    def __init__(self,SK_ID_CURR):
-        self.SK_ID_CURR = int(SK_ID_CURR)
-        self.base_data_path = AppConfig()
+    def __init__(self):
+        self.base_data_path= AppConfig()
         self.data_config= AppConfig()
         self.model_path= AppConfig()
+        self.model= load_object(file_path=self.model_path.trained_model_file__path)
+        self._preprocessor= load_object(file_path=self.data_config.preprocessor_ob_file__path)
+        self.df_clients= pd.read_csv(self.base_data_path.clients_data__path)
 
-    def get_data_as_data_frame(self):
+    def get_data_as_data_frame(self, ID_client):
 
         try:
-
-            df_clients__path = self.base_data_path.clients_data__path
-            df=pd.read_csv(df_clients__path)
-            df_client = df.copy()
-            df_client= df_client.loc[df_client["SK_ID_CURR"] == self.SK_ID_CURR, :]
+            df_client= self.df_clients.loc[self.df_clients["SK_ID_CURR"] == ID_client, :]
             return df_client
 
 
@@ -30,16 +28,8 @@ class CustomData:
     def predict_function(self, df):
         try:
 
-            # df_clients_path = self.base_data_path.clients_data_path
-            # df=pd.read_csv(df_clients_path)
-
-            model_path = self.model_path.trained_model_file__path
-            preprocessor_path = self.data_config.preprocessor_ob_file__path
-
-            model=load_object(file_path=model_path)
-            preprocessor=load_object(file_path=preprocessor_path)
-            data_scaled=preprocessor.transform(df)
-            preds=model.predict(data_scaled)
+            data_scaled= self._preprocessor.transform(df)
+            preds= self.model.predict(data_scaled)
             return preds
 
         except Exception as e:
