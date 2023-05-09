@@ -1,7 +1,6 @@
 from flask import Flask, request, render_template
 import numpy as numpy
-import pandas as pd 
-
+import pandas as pd
 from sklearn.preprocessing import StandardScaler
 from src.pipeline.predict_pipeline import CustomData
 
@@ -33,5 +32,5 @@ def predict_datapoint():
 
 if __name__ == "__main__":
     app.run(host="0.0.0.0",debug=True)
-
+# Essai
 # client n° : 100065 100092 100117 100150 100171 100232 100253 100280 100331 / 100038  100005 100444 100091
