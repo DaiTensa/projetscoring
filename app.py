@@ -32,6 +32,6 @@ def predict_datapoint():
         return render_template('home.html', results= pred[0], ID =SK_ID_CURR)
 
 if __name__ == "__main__":
-    app.run(debug=True)
+    app.run(host="0.0.0.0",debug=True)
 
 # client n° : 100065 100092 100117 100150 100171 100232 100253 100280 100331 / 100038  100005 100444 100091

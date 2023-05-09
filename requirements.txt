@@ -7,4 +7,5 @@ dash==2.8.1
 streamlit 
 dill
 imblearn
+shap
 #-e .
