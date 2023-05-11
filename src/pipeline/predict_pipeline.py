@@ -2,63 +2,32 @@ import sys
 import pandas as pd
 from src.exception import CustomException
 from src.utilis import load_object
+
 from src.components.data_config import AppConfig
 
-
-class CustomData:
+class DataClient:
     def __init__(self):
-        self.base_data_path= AppConfig()
-        self.data_config= AppConfig()
-        self.model_path= AppConfig()
-        self.model= load_object(file_path=self.model_path.trained_model_file__path)
-        self._preprocessor= load_object(file_path=self.data_config.preprocessor_ob_file__path)
-        self.df_clients= pd.read_csv(self.base_data_path.clients_data__path)
-
-    def get_data_as_data_frame(self, ID_client):
-
+        self.data_preprocessor_model_path = AppConfig()
+        self.df_clients= pd.read_csv(self.data_preprocessor_model_path.clients_data__path)
+        self.preprocessor= load_object(file_path=self.data_preprocessor_model_path.preprocessor_ob_file__path)
+        self.model= load_object(file_path=self.data_preprocessor_model_path.trained_model_file__path)
+        
+    def get_data_as_df(self, ID_client):
+        
         try:
+            ID_client = int(ID_client)
             df_client= self.df_clients.loc[self.df_clients["SK_ID_CURR"] == ID_client, :]
             return df_client
 
-
         except Exception as e:
             raise CustomException(e, sys)
-
 
     def predict_function(self, df):
         try:
 
-            data_scaled= self._preprocessor.transform(df)
-            preds= self.model.predict(data_scaled)
-            return preds
+            data_scaled= self.preprocessor.transform(df)
+            pred= self.model.predict(data_scaled)
+            return pred
 
         except Exception as e:
             raise CustomException(e, sys)
-
-
-# class PredictPipeline:
-#     def __init__(self):
-#         self.base_data_path = DataIngestionConfig()
-#         self.data_config= DataTransformationConfig()
-#         self.model_path= ModelTrainerConfig()
-
-#     def predict(self, features):
-#         try:
-
-#             df_clients_path = self.base_data_path.clients_data_path
-#             df=pd.read_csv(df_clients_path)
-
-#             model_path = self.model_path.trained_model_file_path
-#             preprocessor_path = self.data_config.preprocessor_ob_file_path
-
-#             model=load_object(file_path=model_path)
-#             preprocessor=load_object(file_path=preprocessor_path)
-#             data_scaled=preprocessor.transform(features)
-#             preds=model.predict(data_scaled)
-#             return preds
-
-#         except Exception as e:
-#             raise CustomException(e, sys)
-
-
-

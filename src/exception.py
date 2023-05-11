@@ -20,12 +20,12 @@ class CustomException(Exception):
 
 # Essai pour voir si ça fonctionne
 
-#if __name__=="__main__" :
-#    try:
-#        a=1/0
-#    except Exception as e:
-#         logging.info("Divide by zero")
-#         raise CustomException(e, sys)
+if __name__=="__main__" :
+   try:
+       a=1/0
+   except Exception as e:
+        logging.info("Divide by zero")
+        raise CustomException(e, sys)
     
 
 # Aprés exécution du fichier l'erreur suivante ---> :     
