@@ -102,7 +102,7 @@ class DataTransformation:
     
     
  
-    def initiate_data_transformation(self,X_train, X_test, y_train,y_test, undersampling= False, return_train_test_array=False):
+    def initiate_data_transformation(self,X_train, X_test, y_train,y_test, undersampling= False, return_train_test_array=False, save_preprocessor=False):
         
         """
         Cette Fonction permet de faire la transformation des données 
@@ -188,15 +188,17 @@ class DataTransformation:
             X_train = pd.DataFrame(X_train_arr, columns=X_train_input_features)
             X_test = pd.DataFrame(X_test_arr, columns=X_test_input_features)
             
-            save_object(
+            if save_preprocessor:
                 
-                file_path = self.data_transformation_config.preprocessor_ob_file_path, 
-                obj = preprocessor
-            
-            
-            )
+                save_object(
 
-            logging.info("Save du preprocessor object format pkl : OK")
+                    file_path = self.data_transformation_config.preprocessor_ob_file_path, 
+                    obj = preprocessor
+
+
+                )
+
+                logging.info("Save du preprocessor object format pkl : OK")
 
             if return_train_test_array:
                 train_arr = np.c_[np.array(X_train), np.array(y_train_res)]

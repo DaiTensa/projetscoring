@@ -16,7 +16,8 @@ class DataClient:
         
         try:
             ID_client = int(ID_client)
-            df_client= self.df_clients.loc[self.df_clients["SK_ID_CURR"] == ID_client, :]
+            df_client= (self.df_clients.loc[self.df_clients["SK_ID_CURR"] == ID_client]).copy()
+            df_client = df_client.drop(["SK_ID_CURR"], axis=1)
             return df_client
 
         except Exception as e:
@@ -26,6 +27,7 @@ class DataClient:
         try:
 
             data_scaled= self.preprocessor.transform(df)
+            data_scaled = pd.DataFrame(data_scaled, columns= list(df.columns))
             pred= self.model.predict(data_scaled)
             return pred
 

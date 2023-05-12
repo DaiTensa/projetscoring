@@ -21,13 +21,13 @@ class ModelTrainer:
     def __init__(self):
         self.model_trainer_config= ModelTrainerConfig()
         
-    def initiate_model_trainer(self, X_train, y_train, X_test, y_test, model, params, save_best_model=False):
+    def initiate_model_trainer(self, X_train, y_train, X_test, y_test, model, params, alpha,beta, save_best_model=False):
         try:
             logging.info("Evaluation modele : Debut")
             logging.info("Evaluation du modele et fine tuning des hyperparametres")
-            
-            test_model_accuracy, train_model_accuracy, best_model = evaluate_model_(X_train, y_train, X_test ,y_test, 
-                                              model, params)
+            print(f"Évaluation du model : {type(model).__name__} --- En cours")
+            test_model_accuracy, train_model_accuracy, best_model, time_taken = evaluate_model_(X_train, y_train, X_test ,y_test, 
+                                              model, params, alpha, beta)
 
             
             if test_model_accuracy < 0.5:
@@ -41,7 +41,8 @@ class ModelTrainer:
                             )
                 logging.info(f"Save du  best modele format pkl : OK")
             
-            print(f"{type(best_model).__name__} -- test_accuracy: {test_model_accuracy} -- train_accuracy: {train_model_accuracy}")
+            print(f"{type(best_model).__name__} -- test_accuracy: {test_model_accuracy} -- train_accuracy: {train_model_accuracy} --- Time_taken: {time_taken}")
+                  
              
       
         except Exception as e:

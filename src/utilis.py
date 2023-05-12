@@ -10,7 +10,9 @@ from src.exception import CustomException
 import dill
 from sklearn.metrics import accuracy_score, precision_score, recall_score
 from sklearn.model_selection import GridSearchCV
+from functools import partial
 from time import time 
+from sklearn.metrics import confusion_matrix, make_scorer
 #from sklearn.metrics import metrics /!\ /!\ /!\ /!\ /!\
 
 
@@ -326,11 +328,24 @@ def plot_distribution(df, columns, hue_col=None):
         
 ###################################################Models Evaluation ############################################
 
-def evaluate_model_(X_train, y_train, X_test, y_test, model, params):
+
+def fonction_cout_metier(y_true, y_pred, alpha, beta):
+    # beta : détermine le poids du recall dans le score combiné
+    # y_pred[:,1] correspond à la probabilité de la classe positive, deuxième colonne de la sortie predict_proba
+    y_pred = (y_pred[:,1] >= alpha).astype(int)
+    TN, FP, FN, TP = confusion_matrix(y_true, y_pred).ravel()
+    precision = TP / (TP + FP)
+    recall = TP / (TP + FN)
+    return (1/precision + beta/recall)
+
+
+
+def evaluate_model_(X_train, y_train, X_test, y_test, model, params, alpha, beta):
 
     try:
+        score_metier = make_scorer(partial(fonction_cout_metier, threshold=alpha, beta=beta), greater_is_better=False)
         start_time= time()
-        gs= GridSearchCV(estimator= model, param_grid= params, cv=3, n_jobs=-1)
+        gs= GridSearchCV(estimator= model, param_grid= params, cv=3, n_jobs=-1, scoring=score_metier, verbose = 1)
         gs.fit(X_train, y_train)
         model.set_params(**gs.best_params_)
         model.fit(X_train, y_train)
@@ -343,7 +358,7 @@ def evaluate_model_(X_train, y_train, X_test, y_test, model, params):
         train_model_accuracy = accuracy_score(y_train, y_train_pred)
         test_model_accuracy = accuracy_score(y_test, y_test_pred)
         time_taken = end_time - start_time
-        return test_model_accuracy, train_model_accuracy, model
+        return test_model_accuracy, train_model_accuracy, model, time_taken
     
     except Exception as e:
         raise CustomException(e, sys)

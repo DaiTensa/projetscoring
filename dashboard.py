@@ -5,6 +5,7 @@ import requests
 import pandas as pd
 from dash import dash_table
 import json
+import time as t
 
 
 
@@ -14,34 +15,50 @@ app_dash.layout = html.Div([
     html.H1('Dashboard Client'),
     dcc.Input(
         id='id_client',
-        type='number',
-        placeholder='Enter client ID',
+        type='text',
         value=''
     ),
     html.Button('Submit', id='submit-button', n_clicks=0),
     html.Div(id='output-data'),
 ])
 
-
 @app_dash.callback(
-    Output(component_id='id_client', component_property='children'),
+    Output(component_id='output-data', component_property='children'),
     [Input(component_id='submit-button', component_property='n_clicks')],
     [State(component_id='id_client', component_property='value')]
 )
 def get_data_client(n_clicks, id_client):
     if n_clicks:
-        response_data_client = requests.get(f'http://localhost:5000/data/{id_client}')
+        time_0 = t.time()
+        # response_data_client = requests.get(f'http://localhost:5000/data/{id_client}')
         response_pred_client = requests.get(f'http://localhost:5000/prediction/{id_client}')
         # data_client = json.loads(response_data_client.text)
-        return (print(response_data_client.text),
-                print(response_pred_client.text))
-    
+        # df = pd.DataFrame(data_client[0])
+        time_1 = t.time() - time_0
+        return (
+            response_pred_client.text, 
+            time_1
+            # response_data_client.text,
+            # print(response_pred_client.text),
+            # print(type(data_client[0])),
+            # print(data_client[0].keys()),
+            # print(data_client[0].items()) 
+            # print(type(df))
+        )
+
+
+
+   
 if __name__ == '__main__':
     app_dash.run_server(debug=True)
     
     
     
-    
+
+# data_client = None
+# app_dash.layout = dash_table.DataTable(data_client.to_dict('records'), [{"name": i, "id": i} for i in data_client.columns])
+
+
 # @app_dash.callback(
 #      Output(component_id='table', component_property='data'),
 #      [Input(component_id='submit-button', component_property='n_clicks')],
@@ -53,15 +70,7 @@ if __name__ == '__main__':
 #         data_client = json.loads(response_data_client.text)
 #         return data_client
 
-# table = html.Div(
-#             [
-#                 html.H3('Mon dataframe'),
-#                 dash_table.DataTable(id='table',
-#                                      columns=[{"name": i, "id": i} for i in data_client.columns], 
-#                                      data= data_client.to_dict('records')
-#                                      )
-#                 ]
-#             )  
+ 
      
 # app_dash.layout = html.Div(children=[
 #     html.H1('Dashboard Client'),
