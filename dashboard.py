@@ -1,13 +1,8 @@
 from dash import Dash, html, dcc, callback, Output, Input, State
-import plotly.express as px
-import pandas as pd
 import requests
-import pandas as pd
-from dash import dash_table
-import json
 import time as t
 
-
+url_server = 'http://localhost:5000'
 
 app_dash = Dash(__name__)
 
@@ -30,8 +25,8 @@ app_dash.layout = html.Div([
 def get_data_client(n_clicks, id_client):
     if n_clicks:
         time_0 = t.time()
-        # response_data_client = requests.get(f'http://localhost:5000/data/{id_client}')
-        response_pred_client = requests.get(f'http://localhost:5000/prediction/{id_client}')
+        # response_data_client = requests.get(f'{url_server}/data/{id_client}')
+        response_pred_client = requests.get(f'{url_server}/prediction/{id_client}')
         # data_client = json.loads(response_data_client.text)
         # df = pd.DataFrame(data_client[0])
         time_1 = t.time() - time_0

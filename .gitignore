@@ -132,4 +132,6 @@ dmypy.json
 
 # Pyre type checker
 .pyre/
+test_dash.py
+
 

@@ -28,8 +28,10 @@ class DataClient:
 
             data_scaled= self.preprocessor.transform(df)
             data_scaled = pd.DataFrame(data_scaled, columns= list(df.columns))
-            pred= self.model.predict(data_scaled)
-            return pred
+            # pred= self.model.predict(data_scaled)
+            pred= self.model.predict_proba(data_scaled)
+            predicted_classe = pred[0]
+            return {"solvable": bool(predicted_classe[0] > 0.5), "seuil": 0.5, "proba" : predicted_classe[0] }
 
         except Exception as e:
             raise CustomException(e, sys)
