@@ -112,7 +112,7 @@ class DataTransformation:
                 logging.info("Initiate Undersampling")
                 print('TARGET distribution avant Undersampling')
                 print(y_train.value_counts())
-                under_sampler_object = RandomUnderSampler(random_state=0) # revoir le partitionnement des target ????? 
+                under_sampler_object = RandomUnderSampler(random_state=0, sampling_strategy=0.3) # revoir le partitionnement des target ????? 
                 X_train_res, y_train_res = under_sampler_object.fit_resample(X_train, y_train)
                 print()
                 print('TARGET distribution après Undersampling')
@@ -121,6 +121,7 @@ class DataTransformation:
                 
 
 
+            
             
             X_train_rapport = RapportDataFrame(X_train_res, target_column="TARGET", ID_Columns=["SK_ID_CURR", "SK_ID_BUREAU"])
             _, categ, numerical_columns_train, _= X_train_rapport.get_df_columns()

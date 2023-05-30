@@ -14,9 +14,6 @@ class DataIngestionConfig:
     data_base_path : str=os.path.join('C:/Users/Lenovo/Documents/DSPython/data_projet_7/')
     train_data_path: str=os.path.join('artifacts', "train.csv")
     test_data_path: str=os.path.join('artifacts', "test.csv")
-    
-    
-
     # Si le train et test existe déjà alors : changer le chemin et le nom du dossier
     train_path: str=os.path.join('C:/Users/Lenovo/Documents/DSPython/data_projet_7/', "application_train.csv")
     
