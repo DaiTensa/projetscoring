@@ -44,6 +44,30 @@ N'hésitez pas à regarder les autres méthodes disponibles dans le script `data
 
 **2- Feature_Engineering**
 
+Exemple des transformation du dataset `application_train` : 
+
+```python
+def  application_train_preprocessing(df_):
+	df  =  df_.copy()
+	df['DAYS_EMPLOYED_PERC'] =  df['DAYS_EMPLOYED'] /  df['DAYS_BIRTH']
+	df['INCOME_CREDIT_PERC'] =  df['AMT_INCOME_TOTAL'] /  df['AMT_CREDIT']
+	df['INCOME_PER_PERSON'] =  df['AMT_INCOME_TOTAL'] /df['CNT_FAM_MEMBERS']
+	df['ANNUITY_INCOME_PERC'] =  df['AMT_ANNUITY'] /  df['AMT_INCOME_TOTAL']
+	df['PAYMENT_RATE'] =  df['AMT_ANNUITY'] /  df['AMT_CREDIT']
+	df['ANNUITY_LENGTH'] =  df['AMT_CREDIT'] /  df['AMT_ANNUITY']
+	df['ANN_LENGTH_EMPLOYED_RATIO'] =  df['ANNUITY_LENGTH'] /  df['DAYS_EMPLOYED']
+	df['CHILDREN_RATIO'] =  df['CNT_CHILDREN'] /  df['CNT_FAM_MEMBERS']
+	df['credit_div_goods'] =  df['AMT_CREDIT'] /  df['AMT_GOODS_PRICE']
+	df['credit_minus_goods'] =  df['AMT_CREDIT'] -  df['AMT_GOODS_PRICE']
+	df['reg_div_publish'] =  df['DAYS_REGISTRATION'] /  df['DAYS_ID_PUBLISH']
+	df['birth_div_reg'] =  df['DAYS_BIRTH'] /  df['DAYS_REGISTRATION']
+	df['document_sum'] =  df['FLAG_DOCUMENT_2'] +  df['FLAG_DOCUMENT_3'] +  df['FLAG_DOCUMENT_4'] +  df['FLAG_DOCUMENT_5'] +  df['FLAG_DOCUMENT_6'] +  df['FLAG_DOCUMENT_7'] +  df['FLAG_DOCUMENT_8'] +  df['FLAG_DOCUMENT_9'] +  df['FLAG_DOCUMENT_10'] +  df['FLAG_DOCUMENT_11'] +  df['FLAG_DOCUMENT_12'] +  df['FLAG_DOCUMENT_13'] +  df['FLAG_DOCUMENT_14'] + df['FLAG_DOCUMENT_15'] +  df['FLAG_DOCUMENT_16'] +  df['FLAG_DOCUMENT_17'] + df['FLAG_DOCUMENT_18'] + df['FLAG_DOCUMENT_19'] +  df['FLAG_DOCUMENT_20'] + df['FLAG_DOCUMENT_21']
+	df['is_na_amt_annuity'] =  1.0*np.isnan(df['AMT_ANNUITY'])
+	df['age_finish'] =  df['DAYS_BIRTH']*(-1.0/365) + (df['AMT_CREDIT']/df['AMT_ANNUITY']) *(1.0/12) #how old when finish
+
+	return  df
+```
+
 
 ## Entraînement et évaluation du modèle
 
