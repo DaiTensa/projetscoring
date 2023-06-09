@@ -1,4 +1,4 @@
-## Projet 7 : Conception d'un modèle de Scoring et déploiement  
+# Projet 7 : Conception d'un modèle de Scoring et déploiement.
 
 # Introduction
 
@@ -19,7 +19,30 @@ Dans le tableau suivant nous donnons la liste des répertoires ainsi que le cont
 |notebook|`01_EDA` `02_Feature_Engineering` `03_Test_import_transformation_data_train_model` `04_Explainer` `05_Data_Drift`|Analyse exploratoire, préparation des données et features engineering, transformation des données et modélisation | Adaptation d'un kernel pour les besoins de notre mission, il s'agit de toutes les étapes de la construction du modèle du prétraitement des données au calcul de la probabilité de solvabilité en terminant pour l'analyse du data drift | 
 
 ## Collecte et préparation des données
+Les données sont accessible via le lien suivant : [Télécharger les données](https://www.kaggle.com/c/home-credit-default-risk/data)
 
+Une fois la configuration des chemins d'accès à la base de donnée effectué **[**`voir `data_config.py`**]** vous pourrez passer aux étapes suivantes. 
+
+**1- EDA**
+```python
+from  src.components.data_ingestion  import  *
+
+# 01 - Data Base : pour importer la base de donnée
+data_base  =  DataIngestion()
+
+# 02 - Extraction nom de fichiers avec et sans extensions
+liste_name, files_liste_name  =  data_base.get_files_names()
+
+# 03 - Pour importer un data set 
+application_train  =  data_base.import_file(file_name='application_train.csv', reduce_memory_usage  =  False, number_of_rows=None)
+
+# 04 - Pour affciher le rapport d'un data frame exécutez les lignes suivantes
+apport_df_train  =  RapportDataFrame(application_train, target_column="TARGET", ID_Columns=["SK_ID_CURR", "SK_ID_BUREAU"])
+rapport_df_train.rapport(nan_threshold  =  20, return_column_to_keep=False, print_rapport  =  True)
+```
+N'hésitez pas à regarder les autres méthodes disponibles dans le script `data_ingestion.py` 
+
+**2- Feature_Engineering**
 
 
 ## Entraînement et évaluation du modèle
