@@ -134,6 +134,7 @@ X_train, X_test,y_train,y_test=  transformer_row_data.initiate_data_transformati
 								return_train_test_array=False,
 								save_preprocessor=  True
 								)
+```
 
 
 ## Déploiement du modèle et de l'API
