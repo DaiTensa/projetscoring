@@ -135,6 +135,21 @@ X_train, X_test,y_train,y_test=  transformer_row_data.initiate_data_transformati
 								save_preprocessor=  True
 								)
 ```
+Sortie : 
+
+> TARGET distribution avant Undersampling 
+> TARGET 
+> 0 197877 
+> 1 17377 
+> dtype: int64 TARGET 
+> distribution après Undersampling 
+> TARGET 
+> 0 24824 
+> 1 17377 
+> dtype: int64 
+> Les étapes de transformation : 
+> ColumnTransformer(transformers=[('num_pipeline', Pipeline(steps=[('imputer', SimpleImputer()), ('scaled', StandardScaler())]), ['CODE_GENDER', 'FLAG_OWN_CAR', 'FLAG_OWN_REALTY', 'CNT_CHILDREN', 'AMT_INCOME_TOTAL', 'AMT_CREDIT', 'AMT_ANNUITY', 'AMT_GOODS_PRICE', 'REGION_POPULATION_RELATIVE', 'DAYS_BIRTH', 'DAYS_EMPLOYED', 'DAYS_REGISTRATION', 'DAYS_ID_PUBLISH', 'OWN_... 'REG_REGION_NOT_WORK_REGION', 'LIVE_REGION_NOT_WORK_REGION', 'REG_CITY_NOT_LIVE_CITY', 'REG_CITY_NOT_WORK_CITY', 'LIVE_CITY_NOT_WORK_CITY', ...]), 
+> ('cat_pipeline', Pipeline(steps=[('imputer', SimpleImputer(fill_value='missing', strategy='constant')), ('one_hot_encoder', OneHotEncoder(handle_unknown='ignore')), ('sclaer', StandardScaler(with_mean=False))]), [])])
 
 
 ## Déploiement du modèle et de l'API
