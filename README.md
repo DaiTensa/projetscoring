@@ -73,13 +73,13 @@ def  application_train_preprocessing(df_):
 
 ## Entraînement et évaluation du modèle
 
-Pour entrainer un modèle de Machine Learning, nous avons mis en place un pipeline qui comporte plusieurs étapes : 
+Pour entraîner un modèle de Machine Learning, nous avons mis en place un pipeline qui comporte plusieurs étapes : 
 
  - Gestion du déséquilibre entre le nombre de bons et de moins bons clients : `undersampling`.
  - Initiation d'un `train_test_split` avec une stratégie de stratification.
  - Application d'un Preprocessing et enregistrement du Preprocessor sous un format réutilisable.  
  - Construction d'un `score métier` (voir `utilis.py` : *fonction_cout_metier()* et *evaluate_model_()*).
- - Entrainement du modèle, avec une recherche `GridSearchCV` afin d’optimiser les hyperparamètres et comparer les modèles.
+ - Entraînement du modèle, avec une recherche `GridSearchCV` afin d’optimiser les hyperparamètres et comparer les modèles.
 
 **Exemple d'application**
 
@@ -169,32 +169,35 @@ params  = {
 alpha  =  0.5 # Seuil de significativité
 beta  =  10   # 
 cv_results  =  modeltrainer.initiate_model_trainer(
-									X_train,
-									y_train,
-									X_test,
-									y_test,
-									model,
-									params,
-									alpha,
-									beta,
-									expirement_name  =  "expirment_1",
-									run_name  =  "LogisticRegression",
-									save_best_model=True)
+	X_train,
+	y_train,
+	X_test,
+	y_test,
+	model,
+	params,
+	alpha,
+	beta,
+	expirement_name  =  "expirment_1",
+	run_name  =  "LogisticRegression",
+	save_best_model=True)
 ```
+
 A l'issue de cette étape : 
 
 > Enregistrement du meilleur modèle. 
+
 > Retourne les résultats  de la recherche GridSearchCv. 
+
 > Tracking MLflow.
+
 > Scores pour comparer les modèles.
 
 
 ## Déploiement du modèle et de l'API
-
-
+Voir : [projet7-oc-api](https://github.com/DaiTensa/projet7-oc-api)
 
 ## Conception et développement du dashboard
-
-
+Voir : [projet7-oc-dashboard](https://github.com/DaiTensa/projet7-oc-dashboard)
 
 ## Résultats et discussions
+Voir : [projet7-oc-dashboard](https://github.com/DaiTensa/projet7-oc-dashboard)
