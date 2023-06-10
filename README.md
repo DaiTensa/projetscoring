@@ -151,6 +151,43 @@ Sortie :
 > ColumnTransformer(transformers=[('num_pipeline', Pipeline(steps=[('imputer', SimpleImputer()), ('scaled', StandardScaler())]), ['CODE_GENDER', 'FLAG_OWN_CAR', 'FLAG_OWN_REALTY', 'CNT_CHILDREN', 'AMT_INCOME_TOTAL', 'AMT_CREDIT', 'AMT_ANNUITY', 'AMT_GOODS_PRICE', 'REGION_POPULATION_RELATIVE', 'DAYS_BIRTH', 'DAYS_EMPLOYED', 'DAYS_REGISTRATION', 'DAYS_ID_PUBLISH', 'OWN_... 'REG_REGION_NOT_WORK_REGION', 'LIVE_REGION_NOT_WORK_REGION', 'REG_CITY_NOT_LIVE_CITY', 'REG_CITY_NOT_WORK_CITY', 'LIVE_CITY_NOT_WORK_CITY', ...]), 
 > ('cat_pipeline', Pipeline(steps=[('imputer', SimpleImputer(fill_value='missing', strategy='constant')), ('one_hot_encoder', OneHotEncoder(handle_unknown='ignore')), ('sclaer', StandardScaler(with_mean=False))]), [])])
 
+ **Entrainement d'un modèle**
+
+ 1. Initiation d'une classe `ModelTrainer()` : cette classe comporte plusieurs méthodes
+```python
+modeltrainer  =  ModelTrainer()
+```
+ 2. Entrainement et évaluation d'un modèle `LogisticRegression`
+```python
+model  =  LogisticRegression()
+params  = {
+			'penalty': ['l1', 'l2'],
+			'C': [0.001, 0.01, 0.1, 1, 10, 100],
+			'solver': ['liblinear', 'saga']
+			}
+
+alpha  =  0.5 # Seuil de significativité
+beta  =  10   # 
+cv_results  =  modeltrainer.initiate_model_trainer(
+									X_train,
+									y_train,
+									X_test,
+									y_test,
+									model,
+									params,
+									alpha,
+									beta,
+									expirement_name  =  "expirment_1",
+									run_name  =  "LogisticRegression",
+									save_best_model=True)
+```
+A l'issue de cette étape : 
+
+> Enregistrement du meilleur modèle. 
+> Retourne les résultats  de la recherche GridSearchCv. 
+> Tracking MLflow.
+> Scores pour comparer les modèles.
+
 
 ## Déploiement du modèle et de l'API
 
