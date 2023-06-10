@@ -19,9 +19,11 @@ Dans le tableau suivant nous donnons la liste des répertoires ainsi que le cont
 |notebook|`01_EDA` `02_Feature_Engineering` `03_Test_import_transformation_data_train_model` `04_Explainer` `05_Data_Drift`|Analyse exploratoire, préparation des données et features engineering, transformation des données et modélisation | Adaptation d'un kernel pour les besoins de notre mission, il s'agit de toutes les étapes de la construction du modèle du prétraitement des données au calcul de la probabilité de solvabilité en terminant pour l'analyse du data drift | 
 
 ## Collecte et préparation des données
-Les données sont accessible via le lien suivant : [Télécharger les données](https://www.kaggle.com/c/home-credit-default-risk/data)
+Afin de pouvoir développer un **algorithme de classification** en s’appuyant sur des sources de données variées (données comportementales, données provenant d'autres institutions financières, etc.) nous allons procéder comme suite : 
 
-Une fois la configuration des chemins d'accès à la base de donnée effectué **[**`voir `data_config.py`**]** vous pourrez passer aux étapes suivantes. 
+**Acquisition des données** : Les données sont accessible via le lien suivant : [Télécharger les données](https://www.kaggle.com/c/home-credit-default-risk/data)
+
+Une fois la configuration des chemins d'accès à la base de donnée effectué **[**`voir data_config.py`**]** vous pourrez passer aux étapes suivantes. 
 
 **1- EDA**
 ```python
@@ -71,6 +73,67 @@ def  application_train_preprocessing(df_):
 
 ## Entraînement et évaluation du modèle
 
+Pour entrainer un modèle de Machine Learning, nous avons mis en place un pipeline qui comporte plusieurs étapes : 
+
+ - Gestion du déséquilibre entre le nombre de bons et de moins bons clients : `undersampling`.
+ - Initiation d'un `train_test_split` avec une stratégie de stratification.
+ - Application d'un Preprocessing et enregistrement du Preprocessor sous un format réutilisable.  
+ - Construction d'un `score métier` (voir `utilis.py` : *fonction_cout_metier()* et *evaluate_model_()*).
+ - Entrainement du modèle, avec une recherche `GridSearchCV` afin d’optimiser les hyperparamètres et comparer les modèles.
+
+**Exemple d'application**
+
+ **Importer les données**
+ ```python
+ data_base  =  DataIngestion()
+ row_data  =  data_base.import_file(file_name='Final_df.csv', reduce_memory_usage  =  False, number_of_rows=None)
+ ```
+  **Transformation des données**
+```python
+# Dans un prmier temps initiation d'un objet transformer_rox_data
+transformer_row_data=  DataTransformation(row_data)
+```  
+La classe `DataTransformation()` comporte les méthodes suivantes : 
+
+ - *initiate_train_test_split* : initiation d'un train test split.
+**`target`** :str spécifier la colonne Target. 
+**`test_size`** : la proportion de l'ensemble de données à inclure dans la répartition du test.
+**`stratification`** : True ou False pour effectuer le split avec stratification ou pas. 
+
+```python
+X_train, X_test, y_train, y_test  = transformer_row_data.initiate_train_test_split( 
+									target="TARGET", 
+									test_size=0.30,
+									stratification=True)
+``` 
+
+ - *get_data_frames* : Importer X_train X_test, y_train, y_test si existants. 
+ - *initiate_data_transformation* : Transformation des données. 
+ 
+```python
+# Pour initier la transformation des données
+# X_tra, X_test, y_train, y_test retournés : sont transformés avec une pipeline définie dans le fichier data_transformation
+# avec la méthode initiate_data_transformation
+# Les étape de la pipeline sont : 
+# 1- application RandomUnderSampler(random_state=0)
+# 2- num_pipeline
+# 3- categ_piepline
+# 4- fillna des valeur .inf -.inf
+# 5- fit du preprocessor sur les données X_train
+# 6- transform des données X_train et X_test
+# 7- Save du preprocessor dans le dossier artifacts
+# 8- Return X_train, X_test, y_train, y_test preprocssed
+# transformer_row_data= DataTransformation()
+
+X_train, X_test,y_train,y_test=  transformer_row_data.initiate_data_transformation(
+								X_train,
+								X_test,
+								y_train,
+								y_test,
+								undersampling=  True,
+								return_train_test_array=False,
+								save_preprocessor=  True
+								)
 
 
 ## Déploiement du modèle et de l'API
