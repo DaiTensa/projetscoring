@@ -9,11 +9,17 @@ from dataclasses import dataclass
 from src.exception import CustomException
 import dill
 from sklearn.metrics import accuracy_score, precision_score, recall_score
+from sklearn.metrics import roc_curve
+from sklearn.metrics import roc_auc_score
 from sklearn.model_selection import GridSearchCV
 from functools import partial
 from time import time 
 from sklearn.metrics import confusion_matrix, make_scorer
+
 #from sklearn.metrics import metrics /!\ /!\ /!\ /!\ /!\
+
+# tracking
+import mlflow
 
 
 
@@ -326,7 +332,7 @@ def plot_distribution(df, columns, hue_col=None):
         plt.show()
 
         
-###################################################Models Evaluation ############################################
+###################################################Models Evaluation + Tracking ############################################
 
 
 def fonction_cout_metier(y_true, y_pred, alpha, beta):
@@ -340,25 +346,80 @@ def fonction_cout_metier(y_true, y_pred, alpha, beta):
 
 
 
-def evaluate_model_(X_train, y_train, X_test, y_test, model, params, alpha, beta):
+def evaluate_model_(X_train, y_train, X_test, y_test, model, params, alpha, beta, expirement_name, run_name):
 
     try:
+        
+        mlflow.set_experiment(expirement_name)
+        mlflow.autolog(disable=True)
+        
         score_metier = make_scorer(partial(fonction_cout_metier, threshold=alpha, beta=beta), greater_is_better=False)
         start_time= time()
-        gs= GridSearchCV(estimator= model, param_grid= params, cv=3, n_jobs=-1, scoring=score_metier, verbose = 1)
+        
+        print(f"GridSearchCV : {type(model).__name__} --- En cours")
+        gs= GridSearchCV(estimator= model, param_grid= params, cv=3, n_jobs=-1, scoring=score_metier, verbose = 3)
         gs.fit(X_train, y_train)
-        model.set_params(**gs.best_params_)
-        model.fit(X_train, y_train)
+        
+        print(f"GridSearchCV fit X_train y_train: {type(model).__name__} --- OK")
+        best_params = gs.best_params_
+        cv_results = gs.cv_results_
+        cv_results = pd.DataFrame(cv_results)
+        cols = [col for col in cv_results.columns if 'split' not in col]
+        cv_results = cv_results[cols]
+        cv_results = cv_results.sort_values(by='rank_test_score')
+        
+        print(f"GridSearchCV Results: {type(model).__name__} --- OK")
+        print(f"Tracking mlflow: {type(model).__name__} --- en cours")
+        
+        with mlflow.start_run(run_name = run_name):
+            mlflow.set_tag("model_name", f"{type(model).__name__}")
+            mlflow.log_params(best_params)
+            
+            model.set_params(**gs.best_params_)
+            model.fit(X_train, y_train)
+            
+            # Predict : 
+            y_train_pred= model.predict(X_train)
+            y_test_pred= model.predict(X_test)
+            # Probabilités: 
+            model_probas = model.predict_proba(X_test)
+            y_pred = model.predict_proba(X_test)
+            
+            model_roc_auc = roc_auc_score(y_test, model_probas[:,1])
+            # Calcul ROC Curve : 
+            model_fpr, model_tpr, _ = roc_curve(y_test, model_probas[:,1])
+            # Plot ROC Curve: 
+            plt.plot(model_fpr, model_tpr, marker='.', label= f"{type(model).__name__}")
+            plt.xlabel('Taux Faux Positifs')
+            plt.ylabel('Taux Vrais Positifs')
+            plt.legend()
+            plt.savefig('roc_auc_curve.png')
+            
+
+
+            # Track metrics : 
+            train_model_accuracy = accuracy_score(y_train, y_train_pred)
+            test_model_accuracy = accuracy_score(y_test, y_test_pred)
+            test_model_precision = precision_score(y_test, y_test_pred)
+            test_model_recal = recall_score(y_test, y_test_pred)
+            score_metier = fonction_cout_metier(y_test, y_pred, alpha, beta) 
+            
+            mlflow.log_metric("accuracy_train", train_model_accuracy)
+            mlflow.log_metric("accuracy_test", test_model_accuracy)
+            mlflow.log_metric("precision_test", test_model_precision)
+            mlflow.log_metric("recall_test", test_model_recal)
+            mlflow.log_metric("AUC_Score", model_roc_auc)
+            mlflow.log_metric("Score_Metier", score_metier)
+            mlflow.log_artifact('roc_auc_curve.png', "roc_auc_plot")
+        
+        mlflow.end_run()
+        print(f"Tracking mlflow: {type(model).__name__} --- OK")
+        
         end_time = time()
-        y_train_pred= model.predict(X_train)
-        y_test_pred= model.predict(X_test)
-
-
-
-        train_model_accuracy = accuracy_score(y_train, y_train_pred)
-        test_model_accuracy = accuracy_score(y_test, y_test_pred)
         time_taken = end_time - start_time
-        return test_model_accuracy, train_model_accuracy, model, time_taken
+        print(f"Fin training et tuning : {type(model).__name__} --- OK")
+        
+        return test_model_accuracy, train_model_accuracy, model, time_taken, model_roc_auc, score_metier,cv_results
     
     except Exception as e:
         raise CustomException(e, sys)

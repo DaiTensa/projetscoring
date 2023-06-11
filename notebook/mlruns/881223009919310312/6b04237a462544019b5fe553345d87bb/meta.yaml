@@ -1,0 +1,15 @@
+artifact_uri: file:///C:/Users/Lenovo/Documents/DSPython/projetscoring/notebook/mlruns/881223009919310312/6b04237a462544019b5fe553345d87bb/artifacts
+end_time: 1686483447045
+entry_point_name: ''
+experiment_id: '881223009919310312'
+lifecycle_stage: active
+run_id: 6b04237a462544019b5fe553345d87bb
+run_name: KNN
+run_uuid: 6b04237a462544019b5fe553345d87bb
+source_name: ''
+source_type: 4
+source_version: ''
+start_time: 1686469789430
+status: 3
+tags: []
+user_id: Lenovo

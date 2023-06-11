@@ -46,11 +46,11 @@ class DataTransformation:
 
             if stratification:
                 logging.info("Initiation du train_test_split avec stratification")
-                X_train, X_test, y_train, y_test= train_test_split(X, y, test_size=test_size, random_state=0, shuffle=True, stratify=y)
+                X_train, X_test, y_train, y_test= train_test_split(X, y, test_size=test_size, random_state=45, shuffle=True, stratify=y)
                 logging.info("Train et Test split avec stratification : OK")
             else:
                 logging.info(f"Initiation du train_test_split sans stratification")
-                X_train, X_test, y_train, y_test= train_test_split(X, y, test_size=test_size, random_state=0)
+                X_train, X_test, y_train, y_test= train_test_split(X, y, test_size=test_size, random_state=45)
                 logging.info("Train et Test split sans stratification : OK")
             
           
@@ -112,7 +112,7 @@ class DataTransformation:
                 logging.info("Initiate Undersampling")
                 print('TARGET distribution avant Undersampling')
                 print(y_train.value_counts())
-                under_sampler_object = RandomUnderSampler(random_state=0, sampling_strategy=0.3) # revoir le partitionnement des target ????? 
+                under_sampler_object = RandomUnderSampler(random_state=0, sampling_strategy=0.7)
                 X_train_res, y_train_res = under_sampler_object.fit_resample(X_train, y_train)
                 print()
                 print('TARGET distribution après Undersampling')

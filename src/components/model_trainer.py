@@ -13,21 +13,24 @@ from sklearn.metrics import accuracy_score, precision_score, recall_score
 # Exception et logging
 from src.logger import logging
 from src.exception import CustomException
-from src.utilis import save_object, evaluate_model_
+from src.utilis import *
 from src.components.data_config import ModelTrainerConfig
+
+# tracking
+# import mlflow
 
 
 class ModelTrainer:
     def __init__(self):
         self.model_trainer_config= ModelTrainerConfig()
         
-    def initiate_model_trainer(self, X_train, y_train, X_test, y_test, model, params, alpha,beta, save_best_model=False):
+    def initiate_model_trainer(self, X_train, y_train, X_test, y_test, model, params, alpha,beta, expirement_name, run_name, save_best_model=False):
         try:
             logging.info("Evaluation modele : Debut")
             logging.info("Evaluation du modele et fine tuning des hyperparametres")
             print(f"Évaluation du model : {type(model).__name__} --- En cours")
-            test_model_accuracy, train_model_accuracy, best_model, time_taken = evaluate_model_(X_train, y_train, X_test ,y_test, 
-                                              model, params, alpha, beta)
+            test_model_accuracy, train_model_accuracy, best_model, time_taken, model_roc_auc, score_metier, cv_results = evaluate_model_(X_train, y_train, X_test ,y_test, 
+                                              model, params, alpha, beta, expirement_name, run_name)
 
             
             if test_model_accuracy < 0.5:
@@ -36,12 +39,14 @@ class ModelTrainer:
             logging.info(f"Evaluation modele : Fin")
 
             if save_best_model:
-                save_object(file_path= self.model_trainer_config.trained_model_file_path,
+                trained_model_file_path = os.path.join("artifacts", f"{type(model).__name__}.pkl")
+                save_object(file_path= trained_model_file_path,
                             obj= best_model
                             )
                 logging.info(f"Save du  best modele format pkl : OK")
             
-            print(f"{type(best_model).__name__} -- test_accuracy: {test_model_accuracy} -- train_accuracy: {train_model_accuracy} --- Time_taken: {time_taken}")
+            print(f"{type(best_model).__name__} -- test_accuracy: {test_model_accuracy} -- train_accuracy: {train_model_accuracy} --- Time_taken: {time_taken} -- AUC_SCORE : {model_roc_auc} -- Score_Metier : {score_metier}")
+            return cv_results
                   
              
       

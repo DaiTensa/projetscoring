@@ -1,0 +1,15 @@
+artifact_uri: file:///C:/Users/Lenovo/Documents/DSPython/projetscoring/notebook/mlruns/881223009919310312/def66d464e734057a3a0e42df1904016/artifacts
+end_time: 1686448201243
+entry_point_name: ''
+experiment_id: '881223009919310312'
+lifecycle_stage: active
+run_id: def66d464e734057a3a0e42df1904016
+run_name: LogisticRegression
+run_uuid: def66d464e734057a3a0e42df1904016
+source_name: ''
+source_type: 4
+source_version: ''
+start_time: 1686448166325
+status: 3
+tags: []
+user_id: Lenovo

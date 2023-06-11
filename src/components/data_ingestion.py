@@ -50,19 +50,19 @@ class DataIngestion:
             raise CustomException(e,sys)
     
 
-    def import_file(self, file_name, reduce_memory_usage = False):
+    def import_file(self, file_name, reduce_memory_usage = False, number_of_rows=None):
         logging.info(f"Importation du dataset raw : {file_name}")
         try:
             
             path_to_data_base = self.ingestion_config.data_base_path
             print("Importation du dataset...")
             if reduce_memory_usage:
-                df = reduce_memory_usage(pd.read_csv(path_to_data_base + file_name))
+                df = reduce_memory_usage(pd.read_csv(path_to_data_base + file_name, nrows= number_of_rows))
                 print("Importation du dataset réussie !")
                 logging.info(f"Importation du dataset raw : {file_name} OK")
                 
             else:
-                df = pd.read_csv(path_to_data_base + file_name)
+                df = pd.read_csv(path_to_data_base + file_name, nrows= number_of_rows)
                 print("Importation du dataset réussie !")
                 logging.info(f"Importation du dataset raw : {file_name} OK")
 
@@ -180,10 +180,21 @@ class RapportDataFrame:
 
         return recap
 
-# Exemple pour importer le fichier et faire un train test split 
+    
+# Exemple pour importer le fichier
 # if __name__=="__main__":
+    
+#     # Base de données
 #     obj= DataIngestion()
-#     obj.import_file(file_name='application_train.csv')
+#     # Liste des fichier et noms
+#     liste_name, files_liste_name = obj.get_files_names()
+#     # Importer le fichier application_train_.csv
+#     application_train = obj.import_file(file_name='application_train.csv', reduce_memory_usage = False, number_of_rows=None)
+#     application_train.head()
+#     # Générer le rapport
+#     rapport_df_train = RapportDataFrame(application_train, target_column="TARGET", ID_Columns=["SK_ID_CURR", "SK_ID_BUREAU"])
+#     rapport_df_train.rapport(nan_threshold = 20, return_column_to_keep=False, print_rapport = True)
+    
 
 
         
